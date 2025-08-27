@@ -1,0 +1,3 @@
+/home/steluk/repos/3360-ray-tracer/build/CMakeFiles/ray_tracer.dir
+/home/steluk/repos/3360-ray-tracer/build/CMakeFiles/edit_cache.dir
+/home/steluk/repos/3360-ray-tracer/build/CMakeFiles/rebuild_cache.dir
