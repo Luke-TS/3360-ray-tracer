@@ -206,10 +206,12 @@ CMakeFiles/ray_tracer.dir/main.cpp.o: \
  /usr/include/c++/15.2.1/bits/ranges_algobase.h \
  /usr/include/c++/15.2.1/pstl/glue_memory_defs.h \
  /usr/include/c++/15.2.1/pstl/execution_defs.h \
- /home/steluk/repos/3360-ray-tracer/ray.h \
- /home/steluk/repos/3360-ray-tracer/vec3.h \
+ /home/steluk/repos/3360-ray-tracer/camera.h \
  /home/steluk/repos/3360-ray-tracer/color.h \
+ /home/steluk/repos/3360-ray-tracer/vec3.h \
  /home/steluk/repos/3360-ray-tracer/hittable.h \
+ /home/steluk/repos/3360-ray-tracer/ray.h \
+ /home/steluk/repos/3360-ray-tracer/interval.h \
  /home/steluk/repos/3360-ray-tracer/hittable_list.h \
  /usr/include/c++/15.2.1/vector /usr/include/c++/15.2.1/bits/stl_vector.h \
  /usr/include/c++/15.2.1/bits/stl_bvector.h \

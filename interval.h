@@ -10,7 +10,7 @@ public:
     interval(double min, double max) : min(min), max(max)  {}
 
     double size() const {
-        max - min;
+        return max - min;
     }
 
     bool contains(double x) const {
