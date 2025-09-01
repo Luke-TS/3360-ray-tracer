@@ -1,41 +1,19 @@
-#include "color.h"
-#include "vec3.h"
-#include "ray.h"
+#include "main.h"
 
-#include <iostream>
+#include "hittable.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
-// solve quadratic to determine if ray hits sphere
-// returns smallest positive t value where ray intersects, or -1.0
-// disc < 0 --> no roots (missed)
-// disc = 0 --> single root (ray is tangent)
-// disc > 0 --> 2 roots (entrance and exit intersections)
-double hit_shere(const point3& center, double radius, const ray& r) {
-    vec3 oc = center - r.origin();
-    auto a = r.direction().length_squared();
-    auto h = dot(r.direction(), oc);
-    auto c = oc.length_squared() - radius*radius;
-    auto discriminant = h*h - a*c;
-    if (discriminant >= 0) {
-        return (h - std::sqrt(discriminant)) / a;
-    }
-    else {
-        return -1.0;
-    }
-}
+color ray_color(const ray& r, const hittable& world) {
+    hit_record rec;
 
-color ray_color(const ray& r) {
-    auto t = hit_shere(point3(0,0,-1), 0.5, r);
-    if( t > 0.0 ) {
-        vec3 N = unit_vector(r.at(t) - vec3(0,0,-1)); // unit surface normal
-
-        // use rgb values as color
-        // adjust values to 0 - 1
-        return 0.5*color(N.x()+1, N.y()+1, N.z()+1);
+    if(world.hit(r, 0, infinity, rec)) {
+        return 0.5 * (rec.normal + color(1,1,1));
     }
     
     vec3 unit_direction = unit_vector(r.direction());
     auto a = 0.5 * (unit_direction.y() + 1.0); // normalize y to 0.0 <= z <= 1.0
-    return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(1.0, 0.0, 0.0); // white to blue gradient
+    return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // white to blue gradient
 }
 
 int main() {
@@ -47,6 +25,12 @@ int main() {
     // calculate correct image height
     int image_height = int(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height; // height at least 1
+
+    // world
+    hittable_list world;
+
+    world.add(make_shared<sphere>(point3(0,0,-1), 0.5));
+    world.add(make_shared<sphere>(point3(0,-100.5,-1), 100));
     
     // camera
     auto focal_length = 1.0; // distance from camera to center of viewport
@@ -77,7 +61,7 @@ int main() {
             auto ray_direction = pixel_center - camera_center;
             ray r(camera_center, ray_direction);
 
-            color pixel_color = ray_color(r);
+            color pixel_color = ray_color(r, world);
             write_color(std::cout, pixel_color);
         }
     }

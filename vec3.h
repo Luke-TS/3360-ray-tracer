@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cmath>
-#include <iostream>
+#include <ostream>
 
 // simple 3-coordinate vector class
 class vec3 {
