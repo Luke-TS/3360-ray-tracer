@@ -75,9 +75,10 @@ CMakeFiles/ray_tracer.dir/main.cpp.o: \
  /usr/include/c++/15.2.1/tr1/poly_hermite.tcc \
  /usr/include/c++/15.2.1/tr1/poly_laguerre.tcc \
  /usr/include/c++/15.2.1/tr1/riemann_zeta.tcc \
- /usr/include/c++/15.2.1/iostream /usr/include/c++/15.2.1/ostream \
- /usr/include/c++/15.2.1/bits/ostream.h /usr/include/c++/15.2.1/ios \
- /usr/include/c++/15.2.1/iosfwd /usr/include/c++/15.2.1/bits/stringfwd.h \
+ /usr/include/c++/15.2.1/cstdlib /usr/include/c++/15.2.1/iostream \
+ /usr/include/c++/15.2.1/ostream /usr/include/c++/15.2.1/bits/ostream.h \
+ /usr/include/c++/15.2.1/ios /usr/include/c++/15.2.1/iosfwd \
+ /usr/include/c++/15.2.1/bits/stringfwd.h \
  /usr/include/c++/15.2.1/bits/memoryfwd.h \
  /usr/include/c++/15.2.1/bits/postypes.h /usr/include/c++/15.2.1/cwchar \
  /usr/include/wchar.h \
@@ -137,9 +138,8 @@ CMakeFiles/ray_tracer.dir/main.cpp.o: \
  /usr/include/c++/15.2.1/numbers \
  /usr/include/c++/15.2.1/bits/string_view.tcc \
  /usr/include/c++/15.2.1/ext/string_conversions.h \
- /usr/include/c++/15.2.1/cstdlib /usr/include/c++/15.2.1/cstdio \
- /usr/include/stdio.h /usr/include/bits/types/__fpos_t.h \
- /usr/include/bits/types/__fpos64_t.h \
+ /usr/include/c++/15.2.1/cstdio /usr/include/stdio.h \
+ /usr/include/bits/types/__fpos_t.h /usr/include/bits/types/__fpos64_t.h \
  /usr/include/bits/types/struct_FILE.h \
  /usr/include/bits/types/cookie_io_functions_t.h \
  /usr/include/bits/stdio_lim.h /usr/include/c++/15.2.1/cerrno \
@@ -208,10 +208,10 @@ CMakeFiles/ray_tracer.dir/main.cpp.o: \
  /usr/include/c++/15.2.1/pstl/execution_defs.h \
  /home/steluk/repos/3360-ray-tracer/camera.h \
  /home/steluk/repos/3360-ray-tracer/color.h \
+ /home/steluk/repos/3360-ray-tracer/interval.h \
  /home/steluk/repos/3360-ray-tracer/vec3.h \
  /home/steluk/repos/3360-ray-tracer/hittable.h \
  /home/steluk/repos/3360-ray-tracer/ray.h \
- /home/steluk/repos/3360-ray-tracer/interval.h \
  /home/steluk/repos/3360-ray-tracer/hittable_list.h \
  /usr/include/c++/15.2.1/vector /usr/include/c++/15.2.1/bits/stl_vector.h \
  /usr/include/c++/15.2.1/bits/stl_bvector.h \
