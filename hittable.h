@@ -1,13 +1,21 @@
 #pragma once
 
+#include <memory>
+
 // class containing hit information
+//#include "material.h"
 #include "ray.h"
 #include "vec3.h"
 #include "interval.h"
+
+// to solve circular references betwixt material and hittable code
+class material;
+
 class hit_record {
 public:
     point3 p; // hit point
     vec3 normal; // normal vector
+    std::shared_ptr<material> mat;
     double t; // time of hit
     bool front_face;
 

@@ -204,17 +204,18 @@ CMakeFiles/ray_tracer.dir/main.cpp.o: \
  /usr/include/c++/15.2.1/tr1/poly_hermite.tcc \
  /usr/include/c++/15.2.1/tr1/poly_laguerre.tcc \
  /usr/include/c++/15.2.1/tr1/riemann_zeta.tcc \
- /home/steluk/repos/3360-ray-tracer/hittable_list.h \
- /home/steluk/repos/3360-ray-tracer/hittable.h \
- /home/steluk/repos/3360-ray-tracer/ray.h \
+ /home/steluk/repos/3360-ray-tracer/material.h \
+ /home/steluk/repos/3360-ray-tracer/color.h \
+ /home/steluk/repos/3360-ray-tracer/interval.h \
  /home/steluk/repos/3360-ray-tracer/vec3.h \
  /usr/include/c++/15.2.1/ostream /usr/include/c++/15.2.1/bits/ostream.tcc \
- /home/steluk/repos/3360-ray-tracer/interval.h \
+ /home/steluk/repos/3360-ray-tracer/hittable.h \
+ /home/steluk/repos/3360-ray-tracer/ray.h \
+ /home/steluk/repos/3360-ray-tracer/hittable_list.h \
  /usr/include/c++/15.2.1/vector /usr/include/c++/15.2.1/bits/stl_vector.h \
  /usr/include/c++/15.2.1/bits/stl_bvector.h \
  /usr/include/c++/15.2.1/bits/vector.tcc \
  /home/steluk/repos/3360-ray-tracer/sphere.h \
  /home/steluk/repos/3360-ray-tracer/camera.h \
  /usr/include/c++/15.2.1/iostream /usr/include/c++/15.2.1/istream \
- /usr/include/c++/15.2.1/bits/istream.tcc \
- /home/steluk/repos/3360-ray-tracer/color.h
+ /usr/include/c++/15.2.1/bits/istream.tcc

@@ -8,6 +8,7 @@ CMakeFiles/ray_tracer.dir/main.cpp.o: /home/steluk/repos/3360-ray-tracer/main.cp
   /home/steluk/repos/3360-ray-tracer/hittable_list.h \
   /home/steluk/repos/3360-ray-tracer/interval.h \
   /home/steluk/repos/3360-ray-tracer/main.h \
+  /home/steluk/repos/3360-ray-tracer/material.h \
   /home/steluk/repos/3360-ray-tracer/ray.h \
   /home/steluk/repos/3360-ray-tracer/sphere.h \
   /home/steluk/repos/3360-ray-tracer/vec3.h \
@@ -385,7 +386,7 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /usr/include/c++/15.2.1/x86_64-pc-linux-gnu/bits/os_defines.h:
 
-/usr/include/c++/15.2.1/bits/cxxabi_init_exception.h:
+/usr/include/c++/15.2.1/x86_64-pc-linux-gnu/bits/gthr.h:
 
 /usr/include/c++/15.2.1/bits/concept_check.h:
 
@@ -466,6 +467,14 @@ ray_tracer: /usr/lib/Scrt1.o \
 /usr/include/bits/types/__mbstate_t.h:
 
 /usr/include/bits/stdint-least.h:
+
+/usr/include/bits/waitstatus.h:
+
+/usr/include/bits/wchar.h:
+
+/usr/include/bits/types/struct___jmp_buf_tag.h:
+
+/usr/include/bits/setjmp.h:
 
 /usr/include/bits/long-double.h:
 
@@ -563,14 +572,6 @@ CMakeFiles/ray_tracer.dir/main.cpp.o:
 
 /home/steluk/repos/3360-ray-tracer/main.h:
 
-/usr/include/bits/waitstatus.h:
-
-/usr/include/bits/wchar.h:
-
-/usr/include/bits/types/struct___jmp_buf_tag.h:
-
-/usr/include/bits/setjmp.h:
-
 /usr/include/bits/uintn-identity.h:
 
 /usr/include/c++/15.2.1/bits/basic_ios.h:
@@ -578,6 +579,12 @@ CMakeFiles/ray_tracer.dir/main.cpp.o:
 /usr/include/c++/15.2.1/bit:
 
 /usr/include/c++/15.2.1/bits/cpp_type_traits.h:
+
+/home/steluk/repos/3360-ray-tracer/material.h:
+
+/usr/include/bits/pthread_stack_min-dynamic.h:
+
+/usr/include/c++/15.2.1/pstl/pstl_config.h:
 
 /home/steluk/repos/3360-ray-tracer/hittable.h:
 
@@ -671,10 +678,6 @@ CMakeFiles/ray_tracer.dir/main.cpp.o:
 
 /usr/include/bits/fp-fast.h:
 
-/usr/include/bits/pthread_stack_min-dynamic.h:
-
-/usr/include/c++/15.2.1/pstl/pstl_config.h:
-
 /usr/include/c++/15.2.1/bits/atomic_base.h:
 
 /usr/include/bits/pthreadtypes-arch.h:
@@ -702,6 +705,8 @@ CMakeFiles/ray_tracer.dir/main.cpp.o:
 /usr/include/c++/15.2.1/bits/stl_algobase.h:
 
 /usr/include/bits/select.h:
+
+/usr/include/c++/15.2.1/bits/cxxabi_init_exception.h:
 
 /usr/lib/crtn.o:
 
@@ -940,5 +945,3 @@ CMakeFiles/ray_tracer.dir/main.cpp.o:
 /usr/include/c++/15.2.1/x86_64-pc-linux-gnu/bits/ctype_inline.h:
 
 /usr/include/c++/15.2.1/x86_64-pc-linux-gnu/bits/gthr-default.h:
-
-/usr/include/c++/15.2.1/x86_64-pc-linux-gnu/bits/gthr.h:
