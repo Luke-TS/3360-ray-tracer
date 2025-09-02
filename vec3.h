@@ -1,51 +1,61 @@
 #pragma once
 
+#include "main.h"
 #include <cmath>
+#include <cstdlib>
 #include <ostream>
 
 // simple 3-coordinate vector class
 class vec3 {
-    public:
-        // array of coords
-        double e[3];
-        
-        // constructors
-        vec3() : e{0,0,0} {};
-        vec3(double e0, double e1, double e2) : e{e0, e1, e2} {};
+public:
+    // array of coords
+    double e[3];
 
-        double x() const { return e[0]; }
-        double y() const { return e[1]; }
-        double z() const { return e[2]; }
+    // constructors
+    vec3() : e{0,0,0} {};
+    vec3(double e0, double e1, double e2) : e{e0, e1, e2} {};
 
-        vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
-        double operator[](int i) const { return e[i]; } // for const vec3
-        double& operator[](int i) { return e[i]; }      // for non-const vec3
+    double x() const { return e[0]; }
+    double y() const { return e[1]; }
+    double z() const { return e[2]; }
 
-        vec3& operator+=(const vec3& v) {
-            e[0] += v.e[0];
-            e[1] += v.e[1];
-            e[2] += v.e[2];
-            return *this;
-        }
+    vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
+    double operator[](int i) const { return e[i]; } // for const vec3
+    double& operator[](int i) { return e[i]; }      // for non-const vec3
 
-        vec3& operator*=(double t) {
-            e[0] *= t;
-            e[1] *= t;
-            e[2] *= t;
-            return *this;
-        }
+    vec3& operator+=(const vec3& v) {
+        e[0] += v.e[0];
+        e[1] += v.e[1];
+        e[2] += v.e[2];
+        return *this;
+    }
 
-        vec3& operator/=(double t) {
-            return *this *= 1/t;
-        }
+    vec3& operator*=(double t) {
+        e[0] *= t;
+        e[1] *= t;
+        e[2] *= t;
+        return *this;
+    }
 
-        double length() const {
-            return std::sqrt(length_squared());
-        }
+    vec3& operator/=(double t) {
+        return *this *= 1/t;
+    }
 
-        double length_squared() const {
-            return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
-        }
+    double length() const {
+        return std::sqrt(length_squared());
+    }
+
+    double length_squared() const {
+        return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
+    }
+
+    static vec3 random() {
+        return vec3(random_double(), random_double(), random_double());
+    }
+
+    static vec3 random(int min, int max) {
+        return vec3(random_double(min,max), random_double(min,max), random_double(min,max));
+    }
 };
 
 // alias for code clarity
@@ -95,5 +105,26 @@ inline vec3 unit_vector(const vec3& v) {
     return v / v.length();
 }
 
+inline vec3 random_unit_vector() {
+    while(true) {
+        auto p = vec3::random(-1,1);
+        auto lensq = p.length_squared();
+
+        // block small values that will normalize to 0
+        if( 1e-160 < lensq && lensq <= 1 ) {
+            return p / sqrt(lensq);
+        }
+    }
+}
+
+inline vec3 random_on_hemisphere(const vec3& normal) {
+    vec3 on_unit_sphere = random_unit_vector();
+    if( dot(on_unit_sphere, normal) > 0.0 ) {
+        return on_unit_sphere;
+    }
+    else {
+        return -on_unit_sphere;
+    }
+}
 
 
