@@ -1,8 +1,9 @@
 #pragma once
 
+#include <iostream>
+
 #include "color.h"
 #include "hittable.h"
-#include "main.h"
 #include "vec3.h"
 
 class camera {

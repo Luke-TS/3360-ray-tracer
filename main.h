@@ -1,10 +1,7 @@
 #pragma once
 
-#include <cmath>
-#include <cstdlib>
-#include <iostream>
-#include <limits>
 #include <memory>
+#include <cmath>
 
 using std::shared_ptr;
 using std::make_shared;
@@ -27,10 +24,3 @@ inline double random_double() {
 inline double random_double(double min, double max) {
     return random_double()*(max-min) + min;
 }
-
-// common headers
-#include "camera.h"
-#include "color.h"
-#include "interval.h"
-#include "ray.h"
-#include "vec3.h"
