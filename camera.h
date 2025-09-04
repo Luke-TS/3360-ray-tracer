@@ -1,9 +1,12 @@
 #pragma once
 
+#include <cmath>
 #include <iostream>
 
 #include "color.h"
 #include "hittable.h"
+#include "main.h"
+#include "material.h"
 #include "vec3.h"
 
 class camera {
@@ -12,6 +15,8 @@ public:
     int    image_width  = 100;
     int    samples_per_pixel = 10;
     int    max_depth = 10;
+
+    double vfov = 120.0;
 
     void render(const hittable& world) {
         initialize();
@@ -58,7 +63,9 @@ private:
 
         // camera
         auto focal_length = 1.0; // distance from camera to center of viewport
-        auto viewpoint_height = 2.0;
+        double theta = degrees_to_radians(vfov);
+        auto h = atan(theta/2);
+        auto viewpoint_height = 2 * h * focal_length;
         auto viewpoint_width = viewpoint_height * (double(image_width)/image_height);
 
         // vectors across horizontal and vertial viewport edges originating in top left of viewport
