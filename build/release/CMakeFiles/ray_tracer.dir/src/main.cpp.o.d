@@ -218,4 +218,5 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o: \
  /home/steluk/repos/3360-ray-tracer/src/sphere.h \
  /home/steluk/repos/3360-ray-tracer/src/camera.h \
  /usr/include/c++/15.2.1/iostream /usr/include/c++/15.2.1/istream \
- /usr/include/c++/15.2.1/bits/istream.tcc
+ /usr/include/c++/15.2.1/bits/istream.tcc \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/omp.h

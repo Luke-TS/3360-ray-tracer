@@ -96,6 +96,8 @@ ray_tracer_EXTERNAL_OBJECTS =
 ray_tracer: CMakeFiles/ray_tracer.dir/src/main.cpp.o
 ray_tracer: CMakeFiles/ray_tracer.dir/build.make
 ray_tracer: CMakeFiles/ray_tracer.dir/compiler_depend.ts
+ray_tracer: /usr/lib/libgomp.so
+ray_tracer: /usr/lib/libpthread.a
 ray_tracer: CMakeFiles/ray_tracer.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/steluk/repos/3360-ray-tracer/build/debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable ray_tracer"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ray_tracer.dir/link.txt --verbose=$(VERBOSE)

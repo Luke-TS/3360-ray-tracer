@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <iostream>
+#include <vector>
+#include <omp.h>
 
 #include "color.h"
 #include "hittable.h"
@@ -23,12 +25,23 @@ public:
 
     void render(const hittable& world) {
         initialize();
-        
-        // image metadata
-        std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
+        std::vector<color> framebuffer(image_width * image_height);
+        
+        #pragma omp parallel for schedule(dynamic)
         for( int j = 0; j < image_height; j++ ) {
-            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+            
+            int thread_id = omp_get_thread_num();
+
+            // atomic progress logging
+            #pragma omp critical
+            {
+                std::clog << "\rThread " << thread_id
+                    << " processing scanline: " << j
+                    << " (" << image_height - j << " remaining) "
+                    << std::flush;
+            }
+
             for( int i = 0; i < image_width; i++ ) {
                 auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
                 auto ray_direction = pixel_center - center;
@@ -39,8 +52,13 @@ public:
                     ray r = get_ray(i, j);
                     pixel_color += ray_color(r, max_depth, world);
                 }
-                write_color(std::cout, pixel_samples_scale * pixel_color);
+                framebuffer[j * image_width + i] = pixel_color;
             }
+        }
+
+        std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+        for( auto& c: framebuffer ) {
+            write_color(std::cout, pixel_samples_scale * c); 
         }
 
         std::clog << "\rDone.                 \n";
