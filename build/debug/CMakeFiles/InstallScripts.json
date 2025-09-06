@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/steluk/repos/3360-ray-tracer/build/debug/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
