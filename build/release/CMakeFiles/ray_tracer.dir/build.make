@@ -72,28 +72,28 @@ include CMakeFiles/ray_tracer.dir/flags.make
 CMakeFiles/ray_tracer.dir/codegen:
 .PHONY : CMakeFiles/ray_tracer.dir/codegen
 
-CMakeFiles/ray_tracer.dir/main.cpp.o: CMakeFiles/ray_tracer.dir/flags.make
-CMakeFiles/ray_tracer.dir/main.cpp.o: /home/steluk/repos/3360-ray-tracer/main.cpp
-CMakeFiles/ray_tracer.dir/main.cpp.o: CMakeFiles/ray_tracer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/steluk/repos/3360-ray-tracer/build/release/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/ray_tracer.dir/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ray_tracer.dir/main.cpp.o -MF CMakeFiles/ray_tracer.dir/main.cpp.o.d -o CMakeFiles/ray_tracer.dir/main.cpp.o -c /home/steluk/repos/3360-ray-tracer/main.cpp
+CMakeFiles/ray_tracer.dir/src/main.cpp.o: CMakeFiles/ray_tracer.dir/flags.make
+CMakeFiles/ray_tracer.dir/src/main.cpp.o: /home/steluk/repos/3360-ray-tracer/src/main.cpp
+CMakeFiles/ray_tracer.dir/src/main.cpp.o: CMakeFiles/ray_tracer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/steluk/repos/3360-ray-tracer/build/release/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/ray_tracer.dir/src/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ray_tracer.dir/src/main.cpp.o -MF CMakeFiles/ray_tracer.dir/src/main.cpp.o.d -o CMakeFiles/ray_tracer.dir/src/main.cpp.o -c /home/steluk/repos/3360-ray-tracer/src/main.cpp
 
-CMakeFiles/ray_tracer.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ray_tracer.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/steluk/repos/3360-ray-tracer/main.cpp > CMakeFiles/ray_tracer.dir/main.cpp.i
+CMakeFiles/ray_tracer.dir/src/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ray_tracer.dir/src/main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/steluk/repos/3360-ray-tracer/src/main.cpp > CMakeFiles/ray_tracer.dir/src/main.cpp.i
 
-CMakeFiles/ray_tracer.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ray_tracer.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/steluk/repos/3360-ray-tracer/main.cpp -o CMakeFiles/ray_tracer.dir/main.cpp.s
+CMakeFiles/ray_tracer.dir/src/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ray_tracer.dir/src/main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/steluk/repos/3360-ray-tracer/src/main.cpp -o CMakeFiles/ray_tracer.dir/src/main.cpp.s
 
 # Object files for target ray_tracer
 ray_tracer_OBJECTS = \
-"CMakeFiles/ray_tracer.dir/main.cpp.o"
+"CMakeFiles/ray_tracer.dir/src/main.cpp.o"
 
 # External object files for target ray_tracer
 ray_tracer_EXTERNAL_OBJECTS =
 
-ray_tracer: CMakeFiles/ray_tracer.dir/main.cpp.o
+ray_tracer: CMakeFiles/ray_tracer.dir/src/main.cpp.o
 ray_tracer: CMakeFiles/ray_tracer.dir/build.make
 ray_tracer: CMakeFiles/ray_tracer.dir/compiler_depend.ts
 ray_tracer: CMakeFiles/ray_tracer.dir/link.txt

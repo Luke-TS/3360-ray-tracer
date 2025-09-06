@@ -1,1 +1,1 @@
-/usr/bin/c++ -g -Wl,--dependency-file=CMakeFiles/ray_tracer.dir/link.d CMakeFiles/ray_tracer.dir/main.cpp.o -o ray_tracer
+/usr/bin/c++ -g -Wl,--dependency-file=CMakeFiles/ray_tracer.dir/link.d CMakeFiles/ray_tracer.dir/src/main.cpp.o -o ray_tracer
