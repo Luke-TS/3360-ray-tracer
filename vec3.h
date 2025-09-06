@@ -41,12 +41,12 @@ public:
         return *this *= 1/t;
     }
 
-    double length() const {
-        return std::sqrt(length_squared());
-    }
-
     double length_squared() const {
         return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
+    }
+
+    double length() const {
+        return std::sqrt(length_squared());
     }
 
     // used for edge cases where a randomly generated vectors are near zero
