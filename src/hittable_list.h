@@ -1,5 +1,6 @@
 #pragma once
 
+#include "aabb.h"
 #include "hittable.h"
 #include "interval.h"
 
@@ -20,6 +21,7 @@ public:
 
     void add(shared_ptr<hittable> object) {
         objects.push_back(object);
+        bbox = aabb(bbox, object->bounding_box()); // expand box to accomodate object
     }
 
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
@@ -37,4 +39,8 @@ public:
 
         return hit_anything;
     }
+
+    aabb bounding_box() const override { return bbox; }
+private:
+    aabb bbox; // bounding box containing all objects
 };

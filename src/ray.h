@@ -2,6 +2,8 @@
 
 #include "vec3.h"
 
+// simple ray class consisting of a point and a direction vector
+// ray moves one direction vector for every unit time
 class ray {
 public:
     ray() {}

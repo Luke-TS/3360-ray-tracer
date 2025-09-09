@@ -1,6 +1,7 @@
 #pragma once
 
 #include "main.h"
+#include <algorithm>
 class interval {
 public:
     double min, max;
@@ -8,6 +9,17 @@ public:
     interval() : min(-infinity) {}
 
     interval(double min, double max) : min(min), max(max)  {}
+
+    // create interval overlapping two smaller intervals
+    interval(const interval& a, const interval& b) {
+        min = std::min(a.min, b.min);
+        max = std::max(a.max, b.max);
+    }
+
+    interval expand(double delta) const {
+        auto pad = delta / 2;
+        return interval(min + pad, max + pad);
+    }
 
     double size() const {
         return max - min;

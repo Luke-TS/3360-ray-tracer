@@ -4,6 +4,7 @@
 
 // class containing hit information
 //#include "material.h"
+#include "aabb.h"
 #include "ray.h"
 #include "vec3.h"
 #include "interval.h"
@@ -31,4 +32,6 @@ public:
     virtual ~hittable() = default;
 
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
+
+    virtual aabb bounding_box() const = 0;
 };

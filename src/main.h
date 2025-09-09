@@ -24,3 +24,7 @@ inline double random_double() {
 inline double random_double(double min, double max) {
     return random_double()*(max-min) + min;
 }
+
+inline int random_int(int min, int max) {
+    return int(random_double(min, max+1));
+}

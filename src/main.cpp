@@ -1,13 +1,20 @@
 #include "main.h"
 
+#include "bvh.h"
+#include "camera.h"
 #include "material.h"
 #include "hittable_list.h"
 #include "sphere.h"
-#include "camera.h"
-#include <memory>
+#include "timer.h"
+#include <iomanip>
+#include <iostream>
+#include <ostream>
 
 int main() {
     hittable_list world;
+    Timer clock;
+
+    clock.reset();
 
     /*
     auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
@@ -62,6 +69,11 @@ int main() {
 
     auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
     world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
+
+    //world = hittable_list(make_shared<bvh_node>(world));
+
+    hittable_list world_root;
+    world_root.add(make_shared<bvh_node>(world.objects, 0, world.objects.size()));
     
     camera cam;
 
@@ -78,9 +90,9 @@ int main() {
     */
 
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 1200;
-    cam.samples_per_pixel = 250;
-    cam.max_depth         = 50;
+    cam.image_width       = 500;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 20;
 
     cam.vfov     = 20;
     cam.lookfrom = point3(13,2,3);
@@ -90,5 +102,7 @@ int main() {
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
 
-    cam.render(world);
+    cam.render(world_root);
+
+    std::clog << "Runtime: " << std::setprecision(2) << clock.elapsed() << "s" << std::flush;
 }

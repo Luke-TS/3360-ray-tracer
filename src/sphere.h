@@ -3,11 +3,16 @@
 #include "hittable.h"
 #include "interval.h"
 #include "main.h"
+#include "vec3.h"
 #include <memory>
 
 class sphere : public hittable {
 public:
-    sphere(const point3& center, double radius, std::shared_ptr<material> mat) : center(center), radius(std::fmax(0,radius)), mat(mat) {}
+    sphere(const point3& center, double radius, std::shared_ptr<material> mat) 
+            : center(center), radius(std::fmax(0,radius)), mat(mat) {
+        vec3 radius_vec = vec3(radius, radius, radius);
+        bbox = aabb(point3(center + radius_vec), point3(center - radius_vec));
+    }
 
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
         vec3 oc = center - r.origin();
@@ -41,9 +46,14 @@ public:
         return true;
     }
 
+    virtual aabb bounding_box() const override {
+        return bbox;
+    }
+
 private:
     point3 center;
     double radius;
     std::shared_ptr<material> mat;
+    aabb bbox;
 };
 
