@@ -116,6 +116,7 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o: /home/steluk/repos/3360-ray-tracer/src
   /usr/include/bits/xopen_lim.h \
   /usr/include/c++/15.2.1/algorithm \
   /usr/include/c++/15.2.1/array \
+  /usr/include/c++/15.2.1/atomic \
   /usr/include/c++/15.2.1/backward/auto_ptr.h \
   /usr/include/c++/15.2.1/backward/binders.h \
   /usr/include/c++/15.2.1/bit \
@@ -479,6 +480,8 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /usr/include/c++/15.2.1/pstl/execution_defs.h:
 
+/usr/include/c++/15.2.1/ostream:
+
 /usr/include/bits/types/error_t.h:
 
 /usr/include/c++/15.2.1/bits/formatfwd.h:
@@ -721,12 +724,6 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /usr/include/bits/uintn-identity.h:
 
-CMakeFiles/ray_tracer.dir/src/main.cpp.o:
-
-/usr/include/c++/15.2.1/bits/basic_ios.h:
-
-/usr/include/c++/15.2.1/bit:
-
 /home/steluk/repos/3360-ray-tracer/src/main.cpp:
 
 /usr/include/c++/15.2.1/bits/locale_facets_nonio.h:
@@ -809,6 +806,8 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o:
 
 /usr/include/c++/15.2.1/array:
 
+/usr/include/c++/15.2.1/atomic:
+
 /usr/include/c++/15.2.1/format:
 
 /usr/include/c++/15.2.1/ext/numeric_traits.h:
@@ -816,8 +815,6 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o:
 /usr/include/bits/getopt_core.h:
 
 /usr/include/bits/libc-header-start.h:
-
-/usr/include/c++/15.2.1/ostream:
 
 /usr/include/bits/types/time_t.h:
 
@@ -856,6 +853,12 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o:
 /usr/include/c++/15.2.1/bits/atomic_base.h:
 
 /usr/include/bits/pthreadtypes-arch.h:
+
+CMakeFiles/ray_tracer.dir/src/main.cpp.o:
+
+/usr/include/c++/15.2.1/bit:
+
+/usr/include/c++/15.2.1/bits/basic_ios.h:
 
 /usr/include/c++/15.2.1/bits/basic_string.tcc:
 

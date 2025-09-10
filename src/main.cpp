@@ -6,6 +6,7 @@
 #include "hittable_list.h"
 #include "sphere.h"
 #include "timer.h"
+#include <atomic>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
@@ -90,9 +91,9 @@ int main() {
     */
 
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 200;
+    cam.image_width       = 800;
     cam.samples_per_pixel = 100;
-    cam.max_depth         = 20;
+    cam.max_depth         = 25;
 
     cam.vfov     = 20;
     cam.lookfrom = point3(13,2,3);
@@ -102,7 +103,20 @@ int main() {
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
 
-    cam.render(world_root);
+    cam.render(world);
 
-    std::clog << "Runtime: " << std::setprecision(2) << clock.elapsed() << "s" << std::flush;
+    //std::clog << "Runtime: " << std::setprecision(2) << clock.elapsed() << "s" << std::flush;
+
+    std::clog << "\nPrimitive tests: " << g_num_primitive_tests
+          << "\nBox tests: " << g_num_box_tests
+          << "\nAverage primitive tests per pixel: "
+          << (double)g_num_primitive_tests / (cam.image_width * (cam.aspect_ratio + 1))
+          << "\nAverage box tests per pixel: "
+          << (double)g_num_box_tests / (cam.image_width * (cam.aspect_ratio + 1))
+          << "\nAverage primitive tests per ray: "
+          << (double)g_num_primitive_tests / (cam.samples_per_pixel * cam.image_width * (cam.aspect_ratio + 1))
+          << "\nAverage box tests per ray: "
+          << (double)g_num_box_tests / (cam.samples_per_pixel * cam.image_width * (cam.aspect_ratio + 1))
+          << std::endl;
+
 }

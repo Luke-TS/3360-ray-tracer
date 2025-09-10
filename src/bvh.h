@@ -16,42 +16,67 @@ class bvh_node : public hittable {
     }
 
     bvh_node(std::vector<shared_ptr<hittable>>& objects, size_t start, size_t end) {
-        aabb node_box;
-        for (size_t i = start; i < end; ++i)
-            node_box = aabb(node_box, objects[i]->bounding_box());
-
-        vec3 extent = node_box.max() - node_box.min();
-
-        // assign axis to largest axis interval
-        int axis = (extent.x() > extent.y() && extent.x() > extent.z()) ? 0 :
-            (extent.y() > extent.z() ? 1 : 2);
-
+        auto axis = random_int(0, 2);
         auto comparator = (axis == 0) ? box_x_compare
             : (axis == 1) ? box_y_compare
             : box_z_compare;
 
         size_t object_span = end - start;
 
-        if (object_span == 1) {
-            left = right = objects[start];
-        } else if (object_span == 2) {
-            left = objects[start];
-            right = objects[start+1];
+        if (object_span <= 4) {
+            // leaf node - just store the primitives
+            for (size_t i = start; i < end; i++) {
+                primitives.push_back(objects[i]);
+            }
+            left = nullptr;
+            right = nullptr;
         } else {
-            std::sort(std::begin(objects) + start, std::begin(objects) + end, comparator);
+            // sort by comparator and split
+            std::sort(objects.begin() + start, objects.begin() + end, comparator);
 
-            auto mid = start + object_span/2;
-            left = make_shared<bvh_node>(objects, start, mid);
-            right = make_shared<bvh_node>(objects, mid, end);
+            auto mid = start + object_span / 2;
+            left  = std::make_shared<bvh_node>(objects, start, mid);
+            right = std::make_shared<bvh_node>(objects, mid, end);
         }
 
-        bbox = aabb(left->bounding_box(), right->bounding_box());
+        // compute bounding box
+        if (!primitives.empty()) {
+            // leaf: merge all prim AABBs
+            aabb temp_box;
+            bool first_box = true;
+            for (auto& obj : primitives) {
+                aabb b = obj->bounding_box();
+                temp_box = first_box ? b : aabb(temp_box, b);
+                first_box = false;
+            }
+            bbox = temp_box;
+        } else {
+            bbox = aabb(left->bounding_box(), right->bounding_box());
+        }
     }
 
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
-        if (!bbox.hit(r, ray_t))
+        if (!bbox.hit(r, ray_t)) {
             return false;
+        }
 
+        bool hit_anything = false;
+        hit_record temp_rec;
+        auto closest_so_far = ray_t.max;
+
+        // check for leaf node
+        if (!primitives.empty()) {
+            for (auto& obj : primitives) {
+                if (obj->hit(r, interval(ray_t.min, closest_so_far), temp_rec)) {
+                    hit_anything = true;
+                    closest_so_far = temp_rec.t;
+                    rec = temp_rec;
+                }
+            }
+            return hit_anything;
+        }
+
+        // internal node
         bool hit_left = left->hit(r, ray_t, rec);
         bool hit_right = right->hit(r, interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
 
@@ -61,6 +86,7 @@ class bvh_node : public hittable {
     aabb bounding_box() const override { return bbox; }
 
   private:
+    std::vector<std::shared_ptr<hittable>> primitives;
     shared_ptr<hittable> left;
     shared_ptr<hittable> right;
     aabb bbox;
