@@ -34,8 +34,8 @@ int main() {
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
 
-    for (int a = -11; a < 11; a++) {
-        for (int b = -11; b < 11; b++) {
+    for (int a = -200; a < 200; a++) {
+        for (int b = -200; b < 200; b++) {
             auto choose_mat = random_double();
             point3 center(a + 0.9*random_double(), 0.2, b + 0.9*random_double());
 
@@ -92,8 +92,8 @@ int main() {
 
     cam.aspect_ratio      = 16.0 / 9.0;
     cam.image_width       = 800;
-    cam.samples_per_pixel = 100;
-    cam.max_depth         = 25;
+    cam.samples_per_pixel = 1;
+    cam.max_depth         = 10;
 
     cam.vfov     = 20;
     cam.lookfrom = point3(13,2,3);
@@ -105,8 +105,9 @@ int main() {
 
     cam.render(world);
 
-    //std::clog << "Runtime: " << std::setprecision(2) << clock.elapsed() << "s" << std::flush;
+    std::clog << "Runtime: " << std::setprecision(2) << clock.elapsed() << "s" << std::flush;
 
+    /*
     std::clog << "\nPrimitive tests: " << g_num_primitive_tests
           << "\nBox tests: " << g_num_box_tests
           << "\nAverage primitive tests per pixel: "
@@ -118,5 +119,6 @@ int main() {
           << "\nAverage box tests per ray: "
           << (double)g_num_box_tests / (cam.samples_per_pixel * cam.image_width * (cam.aspect_ratio + 1))
           << std::endl;
+    */
 
 }
