@@ -3,6 +3,7 @@
 
 CMakeFiles/ray_tracer.dir/src/main.cpp.o
  /home/steluk/repos/3360-ray-tracer/src/main.cpp
+ /home/steluk/repos/3360-ray-tracer/external/tinyobjloader/tiny_obj_loader.h
  /home/steluk/repos/3360-ray-tracer/src/aabb.h
  /home/steluk/repos/3360-ray-tracer/src/bvh.h
  /home/steluk/repos/3360-ray-tracer/src/camera.h
@@ -10,11 +11,14 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o
  /home/steluk/repos/3360-ray-tracer/src/hittable.h
  /home/steluk/repos/3360-ray-tracer/src/hittable_list.h
  /home/steluk/repos/3360-ray-tracer/src/interval.h
+ /home/steluk/repos/3360-ray-tracer/src/load_obj.h
  /home/steluk/repos/3360-ray-tracer/src/main.h
  /home/steluk/repos/3360-ray-tracer/src/material.h
  /home/steluk/repos/3360-ray-tracer/src/ray.h
  /home/steluk/repos/3360-ray-tracer/src/sphere.h
  /home/steluk/repos/3360-ray-tracer/src/timer.h
+ /home/steluk/repos/3360-ray-tracer/src/triangle.h
+ /home/steluk/repos/3360-ray-tracer/src/triangle_mesh.h
  /home/steluk/repos/3360-ray-tracer/src/vec3.h
  /usr/include/alloca.h
  /usr/include/asm-generic/bitsperlong.h
@@ -143,6 +147,7 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o
  /usr/include/c++/15.2.1/bits/cxxabi_forced.h
  /usr/include/c++/15.2.1/bits/cxxabi_init_exception.h
  /usr/include/c++/15.2.1/bits/enable_special_members.h
+ /usr/include/c++/15.2.1/bits/erase_if.h
  /usr/include/c++/15.2.1/bits/exception.h
  /usr/include/c++/15.2.1/bits/exception_defines.h
  /usr/include/c++/15.2.1/bits/exception_ptr.h
@@ -169,6 +174,7 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o
  /usr/include/c++/15.2.1/bits/move.h
  /usr/include/c++/15.2.1/bits/nested_exception.h
  /usr/include/c++/15.2.1/bits/new_allocator.h
+ /usr/include/c++/15.2.1/bits/node_handle.h
  /usr/include/c++/15.2.1/bits/ostream.h
  /usr/include/c++/15.2.1/bits/ostream.tcc
  /usr/include/c++/15.2.1/bits/ostream_insert.h
@@ -202,9 +208,12 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o
  /usr/include/c++/15.2.1/bits/stl_iterator.h
  /usr/include/c++/15.2.1/bits/stl_iterator_base_funcs.h
  /usr/include/c++/15.2.1/bits/stl_iterator_base_types.h
+ /usr/include/c++/15.2.1/bits/stl_map.h
+ /usr/include/c++/15.2.1/bits/stl_multimap.h
  /usr/include/c++/15.2.1/bits/stl_pair.h
  /usr/include/c++/15.2.1/bits/stl_raw_storage_iter.h
  /usr/include/c++/15.2.1/bits/stl_tempbuf.h
+ /usr/include/c++/15.2.1/bits/stl_tree.h
  /usr/include/c++/15.2.1/bits/stl_uninitialized.h
  /usr/include/c++/15.2.1/bits/stl_vector.h
  /usr/include/c++/15.2.1/bits/streambuf.tcc
@@ -255,6 +264,7 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o
  /usr/include/c++/15.2.1/istream
  /usr/include/c++/15.2.1/limits
  /usr/include/c++/15.2.1/locale
+ /usr/include/c++/15.2.1/map
  /usr/include/c++/15.2.1/memory
  /usr/include/c++/15.2.1/new
  /usr/include/c++/15.2.1/numbers
@@ -362,4 +372,5 @@ ray_tracer
  /usr/lib/libmvec.so.1
  /usr/lib/libpthread.a
  /home/steluk/repos/3360-ray-tracer/build/release/CMakeFiles/ray_tracer.dir/src/main.cpp.o
+ /home/steluk/repos/3360-ray-tracer/build/release/external/tinyobjloader/libtinyobjloader.a
 

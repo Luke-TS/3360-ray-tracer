@@ -3,6 +3,7 @@ ray_tracer: \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o \
   CMakeFiles/ray_tracer.dir/src/main.cpp.o \
+  external/tinyobjloader/libtinyobjloader.a \
   /usr/lib/libgomp.so \
   /usr/lib/libpthread.a \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libstdc++.so \
@@ -40,6 +41,8 @@ ray_tracer: \
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o:
 
 CMakeFiles/ray_tracer.dir/src/main.cpp.o:
+
+external/tinyobjloader/libtinyobjloader.a:
 
 /usr/lib/libgomp.so:
 

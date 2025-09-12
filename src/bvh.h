@@ -3,11 +3,14 @@
 #include "aabb.h"
 #include "hittable.h"
 #include "hittable_list.h"
+#include "triangle_mesh.h"
 
 #include <algorithm>
 
 class bvh_node : public hittable {
   public:
+    bvh_node(triangle_mesh& mesh) : bvh_node(mesh.tris) {}
+
     bvh_node(hittable_list& list) : bvh_node(list.objects, 0, list.objects.size()) {
         // There's a C++ subtlety here. This constructor (without span indices) creates an
         // implicit copy of the hittable list, which we will modify. The lifetime of the copied

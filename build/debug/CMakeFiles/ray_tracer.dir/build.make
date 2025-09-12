@@ -96,6 +96,7 @@ ray_tracer_EXTERNAL_OBJECTS =
 ray_tracer: CMakeFiles/ray_tracer.dir/src/main.cpp.o
 ray_tracer: CMakeFiles/ray_tracer.dir/build.make
 ray_tracer: CMakeFiles/ray_tracer.dir/compiler_depend.ts
+ray_tracer: external/tinyobjloader/libtinyobjloader.a
 ray_tracer: /usr/lib/libgomp.so
 ray_tracer: /usr/lib/libpthread.a
 ray_tracer: CMakeFiles/ray_tracer.dir/link.txt

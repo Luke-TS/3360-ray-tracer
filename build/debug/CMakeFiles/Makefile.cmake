@@ -10,11 +10,23 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/home/steluk/repos/3360-ray-tracer/CMakeLists.txt"
   "CMakeFiles/4.1.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/4.1.1/CMakeSystem.cmake"
+  "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/CMakeLists.txt"
+  "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/cmake/sanitizers/FindASan.cmake"
+  "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/cmake/sanitizers/FindMSan.cmake"
+  "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/cmake/sanitizers/FindSanitizers.cmake"
+  "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/cmake/sanitizers/FindTSan.cmake"
+  "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/cmake/sanitizers/FindUBSan.cmake"
+  "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/cmake/sanitizers/sanitize-helpers.cmake"
+  "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/cmake_uninstall.cmake.in"
+  "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/tinyobjloader-config.cmake.in"
+  "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/tinyobjloader.pc.in"
+  "/usr/share/cmake/Modules/BasicConfigVersion-SameMajorVersion.cmake.in"
   "/usr/share/cmake/Modules/CMakeCXXInformation.cmake"
   "/usr/share/cmake/Modules/CMakeCommonLanguageInclude.cmake"
   "/usr/share/cmake/Modules/CMakeGenericSystem.cmake"
   "/usr/share/cmake/Modules/CMakeInitializeConfigs.cmake"
   "/usr/share/cmake/Modules/CMakeLanguageInformation.cmake"
+  "/usr/share/cmake/Modules/CMakePackageConfigHelpers.cmake"
   "/usr/share/cmake/Modules/CMakeParseImplicitLinkInfo.cmake"
   "/usr/share/cmake/Modules/CMakeSystemSpecificInformation.cmake"
   "/usr/share/cmake/Modules/CMakeSystemSpecificInitialize.cmake"
@@ -24,6 +36,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/share/cmake/Modules/FindOpenMP.cmake"
   "/usr/share/cmake/Modules/FindPackageHandleStandardArgs.cmake"
   "/usr/share/cmake/Modules/FindPackageMessage.cmake"
+  "/usr/share/cmake/Modules/GNUInstallDirs.cmake"
   "/usr/share/cmake/Modules/Internal/CMakeCXXLinkerInformation.cmake"
   "/usr/share/cmake/Modules/Internal/CMakeCommonLinkerInformation.cmake"
   "/usr/share/cmake/Modules/Linker/GNU-CXX.cmake"
@@ -36,6 +49,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/share/cmake/Modules/Platform/Linux-Initialize.cmake"
   "/usr/share/cmake/Modules/Platform/Linux.cmake"
   "/usr/share/cmake/Modules/Platform/UnixPaths.cmake"
+  "/usr/share/cmake/Modules/WriteBasicConfigVersionFile.cmake"
   )
 
 # The corresponding makefile is:
@@ -47,9 +61,16 @@ set(CMAKE_MAKEFILE_OUTPUTS
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
+  "external/tinyobjloader/tinyobjloader-config.cmake"
+  "external/tinyobjloader/tinyobjloader-config-version.cmake"
+  "external/tinyobjloader/tinyobjloader.pc"
+  "external/tinyobjloader/cmake_uninstall.cmake"
+  "external/tinyobjloader/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/ray_tracer.dir/DependInfo.cmake"
+  "external/tinyobjloader/CMakeFiles/tinyobjloader.dir/DependInfo.cmake"
+  "external/tinyobjloader/CMakeFiles/uninstall.dir/DependInfo.cmake"
   )

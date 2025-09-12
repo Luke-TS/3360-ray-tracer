@@ -5,10 +5,14 @@
 #include "material.h"
 #include "hittable_list.h"
 #include "sphere.h"
+#include "triangle.h"
+#include "triangle_mesh.h"
 #include "timer.h"
+#include "load_obj.h"
 #include <atomic>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <ostream>
 
 int main() {
@@ -32,10 +36,11 @@ int main() {
     */
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
-    world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
+    //world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
 
-    for (int a = -200; a < 200; a++) {
-        for (int b = -200; b < 200; b++) {
+    /*
+    for (int a = -11; a < 11; a++) {
+        for (int b = -11; b < 11; b++) {
             auto choose_mat = random_double();
             point3 center(a + 0.9*random_double(), 0.2, b + 0.9*random_double());
 
@@ -61,17 +66,25 @@ int main() {
             }
         }
     }
+    */
 
     auto material1 = make_shared<dielectric>(1.5);
-    world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
+    //world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
 
     auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
-    world.add(make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
+    //world.add(make_shared<sphere>(point3(-4, 0, 0), 1.0, material2));
 
     auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
-    world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
+    //world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
-    //world = hittable_list(make_shared<bvh_node>(world));
+    //world.add(make_shared<triangle>(point3(-2, -2, 0), point3(2, -2, 0), point3(0, 2, 0), material2));
+    
+    auto red = std::make_shared<lambertian>(color(0.8,0.1,0.1));
+
+    auto bunny = load_obj(std::string(PROJECT_SOURCE_DIR) + "/models/stanford-bunny.obj", red, 30);
+    auto bunny_bvh = std::make_shared<bvh_node>(bunny->tris.objects, 0, bunny->tris.objects.size());
+
+    world.add(bunny);
 
     hittable_list world_root;
     world_root.add(make_shared<bvh_node>(world.objects, 0, world.objects.size()));
@@ -91,19 +104,19 @@ int main() {
     */
 
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 800;
-    cam.samples_per_pixel = 1;
-    cam.max_depth         = 10;
+    cam.image_width       = 1000;
+    cam.samples_per_pixel = 1; 
+    cam.max_depth         = 2;
 
-    cam.vfov     = 20;
-    cam.lookfrom = point3(13,2,3);
+    cam.vfov     = 90;
+    cam.lookfrom = point3(0,5,3);
     cam.lookat   = point3(0,0,0);
     cam.vup      = vec3(0,1,0);
 
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
 
-    cam.render(world);
+    cam.render(world_root);
 
     std::clog << "Runtime: " << std::setprecision(2) << clock.elapsed() << "s" << std::flush;
 
