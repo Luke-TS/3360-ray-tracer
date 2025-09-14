@@ -12,13 +12,13 @@ Completed:
   - openMP on main render loop
 - bvh
   - random axis, 4 primative leaf nodes
+- triangle rendering
+- triangle meshes
 
 In progress:
-- Triangle rendering
+- Emissive materials (light)
 
 Future:
-- Triangle meshes
-- Emissive materials (light)
 - Importance Sampling
   - partialy implemented with cos(theta) weighting on lambertian materials
   - bais samples towards important objects (emissive)

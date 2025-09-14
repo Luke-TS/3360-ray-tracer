@@ -33,7 +33,7 @@ public:
     }
 
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
-        // g_num_primitive_tests++;
+        //g_num_primitive_tests++;
         const float kEpsilon = 1e-6f;  // geometric tolerance
 
         vec3 edge1 = b - a;

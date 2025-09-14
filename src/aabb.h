@@ -49,7 +49,7 @@ public:
     }
 
     bool hit(const ray& r, interval ray_t) const {
-        // g_num_box_tests++;
+        //g_num_box_tests++;
         const point3& ray_orig = r.origin();
         const vec3&   ray_dir  = r.direction();
 

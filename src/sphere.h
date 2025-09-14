@@ -15,7 +15,7 @@ public:
     }
 
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
-        // g_num_primitive_tests++;
+        //g_num_primitive_tests++;
         vec3 oc = center - r.origin();
         auto a = r.direction().length_squared();
         auto h = dot(r.direction(), oc);

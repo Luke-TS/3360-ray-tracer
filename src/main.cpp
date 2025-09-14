@@ -81,10 +81,12 @@ int main() {
     
     auto red = std::make_shared<lambertian>(color(0.8,0.1,0.1));
 
-    auto bunny = load_obj(std::string(PROJECT_SOURCE_DIR) + "/models/stanford-bunny.obj", red, 30);
+    auto bunny = load_obj(std::string(PROJECT_SOURCE_DIR) + "/models/stanford-bunny.obj", red, 50);
+
+    // bvh wrapper
     auto bunny_bvh = std::make_shared<bvh_node>(bunny->tris.objects, 0, bunny->tris.objects.size());
 
-    world.add(bunny);
+    world.add(bunny_bvh);
 
     hittable_list world_root;
     world_root.add(make_shared<bvh_node>(world.objects, 0, world.objects.size()));
@@ -105,8 +107,8 @@ int main() {
 
     cam.aspect_ratio      = 16.0 / 9.0;
     cam.image_width       = 1000;
-    cam.samples_per_pixel = 1; 
-    cam.max_depth         = 2;
+    cam.samples_per_pixel = 200; 
+    cam.max_depth         = 35;
 
     cam.vfov     = 90;
     cam.lookfrom = point3(0,5,3);
@@ -120,7 +122,8 @@ int main() {
 
     std::clog << "Runtime: " << std::setprecision(2) << clock.elapsed() << "s" << std::flush;
 
-    /*
+    std::clog << "Num triangles: " << world_root.objects.size() << '\n';
+    
     std::clog << "\nPrimitive tests: " << g_num_primitive_tests
           << "\nBox tests: " << g_num_box_tests
           << "\nAverage primitive tests per pixel: "
@@ -132,6 +135,6 @@ int main() {
           << "\nAverage box tests per ray: "
           << (double)g_num_box_tests / (cam.samples_per_pixel * cam.image_width * (cam.aspect_ratio + 1))
           << std::endl;
-    */
+    
 
 }
