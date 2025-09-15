@@ -20,6 +20,10 @@ public:
     double t; // time of hit
     bool front_face;
 
+    // surface coordinates of hit point for texture mapping
+    double u; 
+    double v;
+
     void set_face_normal(const ray& r, const vec3& outward_normal) {
         front_face = dot(r.direction(), outward_normal) < 0;
         normal = front_face ? outward_normal : -outward_normal;

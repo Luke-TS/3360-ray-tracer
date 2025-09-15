@@ -15,6 +15,7 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o: /home/steluk/repos/3360-ray-tracer/src
   /home/steluk/repos/3360-ray-tracer/src/material.h \
   /home/steluk/repos/3360-ray-tracer/src/ray.h \
   /home/steluk/repos/3360-ray-tracer/src/sphere.h \
+  /home/steluk/repos/3360-ray-tracer/src/texture.h \
   /home/steluk/repos/3360-ray-tracer/src/timer.h \
   /home/steluk/repos/3360-ray-tracer/src/triangle.h \
   /home/steluk/repos/3360-ray-tracer/src/triangle_mesh.h \
@@ -513,10 +514,6 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /usr/include/c++/15.2.1/bits/postypes.h:
 
-/usr/include/stdio.h:
-
-/usr/include/bits/wordsize.h:
-
 /usr/include/bits/wctype-wchar.h:
 
 /usr/include/bits/timesize.h:
@@ -556,8 +553,6 @@ ray_tracer: /usr/lib/Scrt1.o \
 /usr/include/c++/15.2.1/x86_64-pc-linux-gnu/bits/atomic_word.h:
 
 /usr/include/c++/15.2.1/bits/parse_numbers.h:
-
-/usr/include/c++/15.2.1/bits/allocated_ptr.h:
 
 /usr/include/bits/types/clock_t.h:
 
@@ -639,12 +634,6 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /usr/include/c++/15.2.1/bits/stl_bvector.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stddef.h:
-
-/usr/include/asm-generic/int-ll64.h:
-
-/usr/include/bits/mathcalls-macros.h:
-
 /usr/include/asm-generic/errno-base.h:
 
 /usr/include/c++/15.2.1/bits/functexcept.h:
@@ -655,17 +644,9 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /usr/include/c++/15.2.1/bits/quoted_string.h:
 
-/usr/include/c++/15.2.1/bits/locale_facets.tcc:
+/usr/include/stdio.h:
 
-/usr/include/asm/posix_types_64.h:
-
-/usr/include/c++/15.2.1/cwctype:
-
-/usr/include/c++/15.2.1/compare:
-
-/usr/include/bits/time.h:
-
-/usr/include/asm/posix_types.h:
+/usr/include/bits/wordsize.h:
 
 /usr/include/c++/15.2.1/bits/ostream.h:
 
@@ -699,6 +680,16 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /home/steluk/repos/3360-ray-tracer/src/hittable_list.h:
 
+/usr/include/wchar.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/wctype.h:
+
+/usr/include/sched.h:
+
+/usr/include/bits/fp-fast.h:
+
 /usr/include/bits/stdio.h:
 
 /home/steluk/repos/3360-ray-tracer/src/timer.h:
@@ -717,6 +708,20 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /usr/include/bits/confname.h:
 
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stddef.h:
+
+/usr/include/asm-generic/int-ll64.h:
+
+/usr/include/bits/mathcalls-macros.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/asm/posix_types.h:
+
+/usr/include/c++/15.2.1/bits/locale_facets.tcc:
+
+/usr/include/asm/posix_types_64.h:
+
 /usr/include/bits/uintn-identity.h:
 
 /home/steluk/repos/3360-ray-tracer/src/main.cpp:
@@ -724,6 +729,10 @@ ray_tracer: /usr/lib/Scrt1.o \
 /usr/include/c++/15.2.1/bits/locale_facets_nonio.h:
 
 /usr/include/c++/15.2.1/bits/cpp_type_traits.h:
+
+/usr/include/c++/15.2.1/ios:
+
+/usr/include/bits/thread-shared-types.h:
 
 /usr/include/c++/15.2.1/bits/align.h:
 
@@ -763,16 +772,6 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /home/steluk/repos/3360-ray-tracer/src/main.h:
 
-/usr/include/wctype.h:
-
-/usr/include/sched.h:
-
-/usr/include/bits/fp-fast.h:
-
-/usr/include/wchar.h:
-
-/usr/include/bits/posix1_lim.h:
-
 /usr/include/bits/environments.h:
 
 /usr/include/bits/types/struct_FILE.h:
@@ -795,6 +794,8 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /usr/include/asm/errno.h:
 
+/home/steluk/repos/3360-ray-tracer/src/texture.h:
+
 /usr/include/bits/endian.h:
 
 /usr/include/math.h:
@@ -802,10 +803,6 @@ ray_tracer: /usr/lib/Scrt1.o \
 /usr/include/c++/15.2.1/bits/invoke.h:
 
 /usr/include/c++/15.2.1/bits/stl_function.h:
-
-/usr/include/bits/thread-shared-types.h:
-
-/usr/include/c++/15.2.1/ios:
 
 /usr/include/bits/stdint-intn.h:
 
@@ -881,6 +878,12 @@ ray_tracer: /usr/lib/Scrt1.o \
 
 /usr/include/bits/mathcalls-narrow.h:
 
+/usr/include/c++/15.2.1/bits/allocated_ptr.h:
+
+/usr/include/c++/15.2.1/compare:
+
+/usr/include/c++/15.2.1/cwctype:
+
 /usr/include/c++/15.2.1/bits/atomic_base.h:
 
 /usr/include/c++/15.2.1/bits/atomic_wait.h:
@@ -894,6 +897,10 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o:
 /usr/include/c++/15.2.1/bit:
 
 /usr/include/c++/15.2.1/bits/basic_ios.h:
+
+/usr/include/c++/15.2.1/bits/uses_allocator_args.h:
+
+/usr/include/c++/15.2.1/bits/basic_string.h:
 
 /usr/include/bits/mathcalls-helper-functions.h:
 
@@ -1068,10 +1075,6 @@ external/tinyobjloader/libtinyobjloader.a:
 /usr/include/c++/15.2.1/x86_64-pc-linux-gnu/bits/cpu_defines.h:
 
 /usr/include/c++/15.2.1/bits/uses_allocator.h:
-
-/usr/include/c++/15.2.1/bits/basic_string.h:
-
-/usr/include/c++/15.2.1/bits/uses_allocator_args.h:
 
 /usr/include/linux/posix_types.h:
 

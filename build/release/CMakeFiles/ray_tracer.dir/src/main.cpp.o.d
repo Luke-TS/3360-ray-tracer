@@ -231,6 +231,16 @@ CMakeFiles/ray_tracer.dir/src/main.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/omp.h \
  /home/steluk/repos/3360-ray-tracer/src/color.h \
  /home/steluk/repos/3360-ray-tracer/src/material.h \
+ /home/steluk/repos/3360-ray-tracer/src/texture.h \
+ /home/steluk/repos/3360-ray-tracer/src/image_loader.h \
+ /home/steluk/repos/3360-ray-tracer/src/stb_image.h \
+ /usr/include/c++/15.2.1/stdlib.h /usr/include/string.h \
+ /usr/include/strings.h /usr/include/c++/15.2.1/math.h \
+ /usr/include/assert.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/emmintrin.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/xmmintrin.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/mmintrin.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/mm_malloc.h \
  /home/steluk/repos/3360-ray-tracer/src/sphere.h \
  /home/steluk/repos/3360-ray-tracer/src/timer.h \
  /usr/include/c++/15.2.1/chrono /usr/include/c++/15.2.1/bits/chrono.h \

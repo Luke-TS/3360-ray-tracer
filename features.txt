@@ -16,6 +16,7 @@ Completed:
 - triangle meshes
 
 In progress:
+- Texture mapping
 - Emissive materials (light)
 
 Future:
