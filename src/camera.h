@@ -5,11 +5,61 @@
 #include <vector>
 #include <omp.h>
 
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <unordered_map>
+
 #include "color.h"
 #include "hittable.h"
 #include "main.h"
 #include "material.h"
 #include "vec3.h"
+
+using json = nlohmann::json;
+
+struct CameraConfig {
+    double aspect_ratio = 16/9.0;
+    int    image_width  = 400;
+    int    samples_per_pixel = 50;
+    int    max_depth    = 10;
+
+    double vfov = 90.0;
+    vec3   lookfrom = point3(0,0,0);
+    vec3   lookat   = point3(0,0,-1);
+    vec3   vup      = point3(0,1,0);
+
+    double defocus_angle = 0.0;
+    double focus_dist    = 10.0;
+};
+
+inline CameraConfig parseCamera(const json& j) {
+    CameraConfig cfg;
+    cfg.aspect_ratio = j.value("aspectRatio", cfg.aspect_ratio);
+    cfg.image_width = j.value("imageWidth", cfg.image_width);
+    cfg.samples_per_pixel = j.value("samplesPerPixel", cfg.samples_per_pixel);
+    cfg.max_depth = j.value("maxDepth", cfg.max_depth);
+
+    cfg.vfov = j.value("vfov", cfg.vfov);
+    cfg.lookfrom = { j["lookfrom"][0], j["lookfrom"][1], j["lookfrom"][2] };
+    cfg.lookat   = { j["lookat"][0],   j["lookat"][1],   j["lookat"][2]   };
+    cfg.vup      = { j["vup"][0],      j["vup"][1],      j["vup"][2]      };
+
+    cfg.defocus_angle = j.value("defocusAngle", cfg.defocus_angle);
+    cfg.focus_dist = j.value("focusDist", cfg.focus_dist);
+
+    return cfg;
+}
+
+inline std::unordered_map<std::string, CameraConfig> loadCameras(const std::string& filename) {
+    std::ifstream f(filename);
+    json data = json::parse(f);
+
+    std::unordered_map<std::string, CameraConfig> cameras;
+    for (auto& [name, cam] : data.items()) {
+        cameras[name] = parseCamera(cam);
+    }
+    return cameras;
+}
 
 class camera {
 public:
@@ -65,6 +115,21 @@ public:
         }
 
         std::clog << "\rDone.                 \n";
+    }
+
+    void set_from_config(const CameraConfig& cfg) {
+        aspect_ratio = cfg.aspect_ratio;
+        image_width = cfg.image_width;
+        samples_per_pixel = cfg.samples_per_pixel;
+        max_depth = cfg.max_depth;
+
+        vfov = cfg.vfov;
+        lookfrom = cfg.lookfrom;
+        lookat = cfg.lookat;
+        vup = cfg.vup;
+
+        defocus_angle = cfg.defocus_angle;
+        focus_dist = cfg.focus_dist;
     }
 
 private:

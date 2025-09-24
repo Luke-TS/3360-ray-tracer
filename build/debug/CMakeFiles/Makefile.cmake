@@ -10,6 +10,10 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/home/steluk/repos/3360-ray-tracer/CMakeLists.txt"
   "CMakeFiles/4.1.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/4.1.1/CMakeSystem.cmake"
+  "_deps/json-src/CMakeLists.txt"
+  "_deps/json-src/cmake/config.cmake.in"
+  "_deps/json-src/cmake/nlohmann_jsonConfigVersion.cmake.in"
+  "_deps/json-src/cmake/pkg-config.pc.in"
   "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/CMakeLists.txt"
   "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/cmake/sanitizers/FindASan.cmake"
   "/home/steluk/repos/3360-ray-tracer/external/tinyobjloader/cmake/sanitizers/FindMSan.cmake"
@@ -33,6 +37,11 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/share/cmake/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
   "/usr/share/cmake/Modules/Compiler/GNU-CXX.cmake"
   "/usr/share/cmake/Modules/Compiler/GNU.cmake"
+  "/usr/share/cmake/Modules/ExternalProject.cmake"
+  "/usr/share/cmake/Modules/ExternalProject/shared_internal_commands.cmake"
+  "/usr/share/cmake/Modules/FetchContent.cmake"
+  "/usr/share/cmake/Modules/FetchContent/CMakeLists.cmake.in"
+  "/usr/share/cmake/Modules/FindGit.cmake"
   "/usr/share/cmake/Modules/FindOpenMP.cmake"
   "/usr/share/cmake/Modules/FindPackageHandleStandardArgs.cmake"
   "/usr/share/cmake/Modules/FindPackageMessage.cmake"
@@ -60,12 +69,17 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
+  "_deps/json-subbuild/CMakeLists.txt"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "external/tinyobjloader/tinyobjloader-config.cmake"
   "external/tinyobjloader/tinyobjloader-config-version.cmake"
   "external/tinyobjloader/tinyobjloader.pc"
   "external/tinyobjloader/cmake_uninstall.cmake"
   "external/tinyobjloader/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "_deps/json-build/nlohmann_json.pc"
+  "_deps/json-build/nlohmann_jsonConfigVersion.cmake"
+  "_deps/json-build/nlohmann_jsonConfig.cmake"
+  "_deps/json-build/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:

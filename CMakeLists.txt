@@ -1,22 +1,38 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.14)
 project(ray_tracer LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Dependencies
 add_subdirectory(external/tinyobjloader)
 
-add_definitions(-DPROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
-
-# add executable
+# Define source files
 set(SOURCE_FILES src/main.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-# find packages
+# OpenMP
 find_package(OpenMP REQUIRED)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/tinyobjloader)
+# Fetch nlohmann/json
+include(FetchContent)
+FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+)
+FetchContent_MakeAvailable(json)
 
-# link to target
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX tinyobjloader)
+# Includes
+target_include_directories(${PROJECT_NAME}
+    PRIVATE ${CMAKE_SOURCE_DIR}/external/tinyobjloader
+)
+
+# Link libraries
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        OpenMP::OpenMP_CXX
+        tinyobjloader
+        nlohmann_json::nlohmann_json
+)
 

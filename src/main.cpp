@@ -16,10 +16,12 @@
 #include <memory>
 #include <ostream>
 
-void earth() {
+void earth(hittable_list& world) {
     auto earth_texture = make_shared<image_texture>("earthmap.jpg");
     auto earth_surface = make_shared<lambertian>(earth_texture);
     auto globe = make_shared<sphere>(point3(0,0,0), 2, earth_surface);
+
+    world = hittable_list(globe);
 
     camera cam;
 
@@ -34,11 +36,9 @@ void earth() {
     cam.vup      = vec3(0,1,0);
 
     cam.defocus_angle = 0;
-
-    cam.render(hittable_list(globe));
 }
 
-void spheres() {
+void spheres(hittable_list& world_root) {
     hittable_list world;
 
     auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
@@ -106,7 +106,6 @@ void spheres() {
 
     // world.add(bunny_bvh);
 
-    hittable_list world_root;
     world_root.add(make_shared<bvh_node>(world.objects, 0, world.objects.size()));
     
     camera cam;
@@ -136,13 +135,11 @@ void spheres() {
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
 
-    cam.render(world_root);
+    //cam.render(world_root);
 
 }
 
-void checkered_spheres() {
-        hittable_list world;
-
+void checkered_spheres(hittable_list& world) {
     auto checker = make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
 
     world.add(make_shared<sphere>(point3(0,-10, 0), 10, make_shared<lambertian>(checker)));
@@ -162,19 +159,35 @@ void checkered_spheres() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
-int main() {
+int main(int argc, char** argv) {
     Timer clock;
-
     clock.reset();
 
-    switch(3) {
-        case 1: spheres();
-        case 2: checkered_spheres();
-        case 3: earth();
+    auto cameras = loadCameras("cameras.json");
+
+    std::string active = "default";
+    if( argc > 1 ) {
+        active = argv[1];
     }
+
+    if( !cameras.count(active) ) {
+        std::cerr << "Camera '" << active << "' not found. Using default.\n";
+        active = "default";
+    }
+    camera cam;
+    cam.set_from_config(cameras[active]);
+
+    hittable_list world;
+    switch(1) {
+        case 1: spheres(world); break;
+        case 2: checkered_spheres(world); break;
+        case 3: earth(world); break;
+    }
+
+    cam.render(world);
 
     std::clog << "Runtime: " << std::setprecision(2) << clock.elapsed() << "s" << std::flush;
 

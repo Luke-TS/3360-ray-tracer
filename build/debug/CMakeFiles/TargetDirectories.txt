@@ -13,3 +13,9 @@
 /home/steluk/repos/3360-ray-tracer/build/debug/external/tinyobjloader/CMakeFiles/install.dir
 /home/steluk/repos/3360-ray-tracer/build/debug/external/tinyobjloader/CMakeFiles/install/local.dir
 /home/steluk/repos/3360-ray-tracer/build/debug/external/tinyobjloader/CMakeFiles/install/strip.dir
+/home/steluk/repos/3360-ray-tracer/build/debug/_deps/json-build/CMakeFiles/edit_cache.dir
+/home/steluk/repos/3360-ray-tracer/build/debug/_deps/json-build/CMakeFiles/rebuild_cache.dir
+/home/steluk/repos/3360-ray-tracer/build/debug/_deps/json-build/CMakeFiles/list_install_components.dir
+/home/steluk/repos/3360-ray-tracer/build/debug/_deps/json-build/CMakeFiles/install.dir
+/home/steluk/repos/3360-ray-tracer/build/debug/_deps/json-build/CMakeFiles/install/local.dir
+/home/steluk/repos/3360-ray-tracer/build/debug/_deps/json-build/CMakeFiles/install/strip.dir

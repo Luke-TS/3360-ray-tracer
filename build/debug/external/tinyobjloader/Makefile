@@ -137,13 +137,6 @@ all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/steluk/repos/3360-ray-tracer/build/debug/CMakeFiles 0
 .PHONY : all
 
-# The main codegen target
-codegen: cmake_check_build_system
-	cd /home/steluk/repos/3360-ray-tracer/build/debug && $(CMAKE_COMMAND) -E cmake_progress_start /home/steluk/repos/3360-ray-tracer/build/debug/CMakeFiles /home/steluk/repos/3360-ray-tracer/build/debug/external/tinyobjloader//CMakeFiles/progress.marks
-	cd /home/steluk/repos/3360-ray-tracer/build/debug && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/tinyobjloader/codegen
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/steluk/repos/3360-ray-tracer/build/debug/CMakeFiles 0
-.PHONY : codegen
-
 # The main clean target
 clean:
 	cd /home/steluk/repos/3360-ray-tracer/build/debug && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/tinyobjloader/clean
@@ -226,7 +219,6 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... codegen"
 	@echo "... edit_cache"
 	@echo "... install"
 	@echo "... install/local"
