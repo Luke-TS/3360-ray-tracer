@@ -76,47 +76,6 @@ public:
     double defocus_angle = 0;
     double focus_dist = 10;
 
-    void render(const hittable& world) {
-        initialize();
-
-        std::vector<color> framebuffer(image_width * image_height);
-        
-        #pragma omp parallel for schedule(dynamic)
-        for( int j = 0; j < image_height; j++ ) {
-            
-            int thread_id = omp_get_thread_num();
-
-            // atomic progress logging
-            #pragma omp critical
-            {
-                std::clog << "\rThread " << thread_id
-                    << " processing scanline: " << j
-                    << " (" << image_height - j << " remaining) "
-                    << std::flush;
-            }
-
-            for( int i = 0; i < image_width; i++ ) {
-                auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-                auto ray_direction = pixel_center - center;
-                ray r(center, ray_direction);
-
-                color pixel_color(0,0,0);
-                for(int sample = 0; sample < samples_per_pixel; sample++) {
-                    ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, max_depth, world);
-                }
-                framebuffer[j * image_width + i] = pixel_color;
-            }
-        }
-
-        std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-        for( auto& c: framebuffer ) {
-            write_color(std::cout, pixel_samples_scale * c); 
-        }
-
-        std::clog << "\rDone.                 \n";
-    }
-
     void set_from_config(const CameraConfig& cfg) {
         aspect_ratio = cfg.aspect_ratio;
         image_width = cfg.image_width;
@@ -131,17 +90,6 @@ public:
         defocus_angle = cfg.defocus_angle;
         focus_dist = cfg.focus_dist;
     }
-
-private:
-    int image_height;
-    double pixel_samples_scale;
-    point3 center;
-    point3 pixel00_loc;
-    vec3 pixel_delta_u;
-    vec3 pixel_delta_v;
-    vec3 u, v, w; // camera basis vectors
-    vec3 defocus_disk_u;
-    vec3 defocus_disk_v;
 
     void initialize() {
 
@@ -191,16 +139,16 @@ private:
         return ray(ray_origin, ray_direction);
     }
 
-    point3 defocus_disk_sample() const {
-        auto p = random_in_unit_disk();
-        return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
+    int get_image_height() {
+        return image_height;
     }
 
-    vec3 sample_square() const {
-        return vec3(random_double() - 0.5, random_double() - 0.5, 0);
+    int get_image_width() {
+        return image_width;
     }
 
-    color ray_color(const ray& r, int depth, const hittable& world) const {
+    // used to aquire pixel value
+    color get_pixel(const ray& r, int depth, const hittable& world) const {
         if( depth <= 0 ) {
             return color(0,0,0);
         }
@@ -214,7 +162,7 @@ private:
             ray scattered;
             color attenuation;
             if( rec.mat->scatter(r, rec, attenuation, scattered) ) {
-                return attenuation * ray_color(scattered, depth-1, world);
+                return attenuation * get_pixel(scattered, depth-1, world);
             }
             return color(0,0,0);
         }
@@ -223,4 +171,26 @@ private:
         auto a = 0.5 * (unit_direction.y() + 1.0); // normalize y to 0.0 <= z <= 1.0
         return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // white to blue gradient
     }
+
+private:
+    int    image_height;
+    double pixel_samples_scale;
+    point3 center;
+    point3 pixel00_loc;
+    vec3 pixel_delta_u;
+    vec3 pixel_delta_v;
+    vec3 u, v, w; // camera basis vectors
+    vec3 defocus_disk_u;
+    vec3 defocus_disk_v;
+
+
+    point3 defocus_disk_sample() const {
+        auto p = random_in_unit_disk();
+        return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
+    }
+
+    vec3 sample_square() const {
+        return vec3(random_double() - 0.5, random_double() - 0.5, 0);
+    }
+
 };
