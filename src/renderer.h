@@ -12,6 +12,7 @@ public:
         cam.initialize();
         int width = cam.get_image_width();
         int height = cam.get_image_height();
+        long total_samples = 0;
 
         std::vector<color> framebuffer(width * height);
 
@@ -31,7 +32,9 @@ public:
 
             for( int x = 0; x < width; x++ ) {
                 // aquire pixel color using sampler
-                color pixel_color = sampler.sample_pixel(world, cam, x, y);
+                color pixel_color;
+                int num_samples = sampler.sample_pixel(pixel_color, world, cam, x, y);
+                total_samples += num_samples;
 
                 // add color to framebuffer
                 framebuffer[y * width + x] = pixel_color;
@@ -43,7 +46,7 @@ public:
             write_color(std::cout, c); 
         }
 
-        std::clog << "\rDone.                 \n";
+        std::clog << "\rDone. Total samples: " << total_samples << "Per pixel: " << total_samples / (width * height) <<"\n";
     }
 private:
     Sampler& sampler;

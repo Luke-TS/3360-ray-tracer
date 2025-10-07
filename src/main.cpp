@@ -24,6 +24,9 @@ void earth(Scene& world) {
 void spheres(Scene& world_root) {
     Scene world;
 
+    auto earth_texture = make_shared<image_texture>("earthmap.jpg");
+    auto earth_surface = make_shared<lambertian>(earth_texture);
+
     auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
     auto material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
     auto material_left   = make_shared<dielectric>(1.50); // model of air bubble in water
@@ -48,7 +51,9 @@ void spheres(Scene& world_root) {
             if ((center - point3(4, 0.2, 0)).length() > 0.9) {
                 shared_ptr<material> sphere_material;
 
-                if (choose_mat < 0.8) {
+                if (choose_mat < 0.2) {
+                    world.add(make_shared<sphere>(center, 0.2, earth_surface));
+                } else if(choose_mat < 0.8) {
                     // diffuse
                     auto albedo = color::random() * color::random();
                     sphere_material = make_shared<lambertian>(albedo);
@@ -125,9 +130,10 @@ int main(int argc, char** argv) {
         case 3: earth(world); break;
     }
 
-    DefaultSampler sampler(cam.samples_per_pixel);
+    DefaultSampler default_sampler(cam.samples_per_pixel);
+    AdaptiveSampler adaptive_sampler(30, 250, 0.1f);
 
-    Renderer renderer(world, cam, sampler);
+    Renderer renderer(world, cam, default_sampler);
 
     renderer.render();
 
