@@ -2,13 +2,11 @@
 
 #include "Sampler.h"
 #include "camera.h"
-#include "scene.h"
 
 class Renderer {
 public:
-    Sampler sampler;
-    Scene world;
-    camera cam;
+    Renderer(Scene& scene, camera& camera, Sampler& sampler)
+        : world(scene), cam(camera), sampler(sampler) {}
 
     void render() {
         cam.initialize();
@@ -32,11 +30,8 @@ public:
             }
 
             for( int x = 0; x < width; x++ ) {
-                // aquire ray from the camera
-                ray r = cam.get_ray(x, y);
-
                 // aquire pixel color using sampler
-                color pixel_color = sampler.sample_pixel(world, r, cam);
+                color pixel_color = sampler.sample_pixel(world, cam, x, y);
 
                 // add color to framebuffer
                 framebuffer[x * width + y] = pixel_color;
@@ -50,4 +45,8 @@ public:
 
         std::clog << "\rDone.                 \n";
     }
+private:
+    Sampler& sampler;
+    Scene& world;
+    camera& cam;
 };

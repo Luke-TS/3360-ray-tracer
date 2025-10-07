@@ -18,7 +18,7 @@ class bvh_node : public Hittable {
         // persist the resulting bounding volume hierarchy.
     }
 
-    bvh_node(std::vector<shared_ptr<hittable>>& objects, size_t start, size_t end) {
+    bvh_node(std::vector<shared_ptr<Hittable>>& objects, size_t start, size_t end) {
         auto axis = random_int(0, 2);
         auto comparator = (axis == 0) ? box_x_compare
             : (axis == 1) ? box_y_compare
@@ -89,7 +89,7 @@ class bvh_node : public Hittable {
     aabb bounding_box() const override { return bbox; }
 
   private:
-    std::vector<std::shared_ptr<hittable>> primitives;
+    std::vector<std::shared_ptr<Hittable>> primitives;
     shared_ptr<Hittable> left;
     shared_ptr<Hittable> right;
     aabb bbox;

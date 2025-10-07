@@ -4,6 +4,8 @@
 #include "camera.h"
 #include "material.h"
 #include "scene.h"
+#include "renderer.h"
+#include "Sampler.h"
 #include "sphere.h"
 #include "texture.h"
 #include "triangle.h"
@@ -22,20 +24,6 @@ void earth(Scene& world) {
     auto globe = make_shared<sphere>(point3(0,0,0), 2, earth_surface);
 
     world = Scene(globe);
-
-    camera cam;
-
-    cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 400;
-    cam.samples_per_pixel = 100;
-    cam.max_depth         = 50;
-
-    cam.vfov     = 20;
-    cam.lookfrom = point3(0,0,12);
-    cam.lookat   = point3(0,0,0);
-    cam.vup      = vec3(0,1,0);
-
-    cam.defocus_angle = 0;
 }
 
 void spheres(Scene& world_root) {
@@ -107,36 +95,6 @@ void spheres(Scene& world_root) {
     // world.add(bunny_bvh);
 
     world_root.add(make_shared<bvh_node>(world.objects, 0, world.objects.size()));
-    
-    camera cam;
-
-    /*
-    cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width = 400;
-    cam.samples_per_pixel = 100;
-    cam.max_depth = 50;
-
-    cam.vfov = 20;
-    cam.lookfrom = point3(-2,2,1);
-    cam.lookat   = point3(0,0,-1);
-    cam.vup      = vec3(0,1,0);
-    */
-
-    cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 1000;
-    cam.samples_per_pixel = 200; 
-    cam.max_depth         = 35;
-
-    cam.vfov     = 20;
-    cam.lookfrom = point3(13,5,1);
-    cam.lookat   = point3(0,0,0);
-    cam.vup      = vec3(0,1,0);
-
-    cam.defocus_angle = 0.6;
-    cam.focus_dist    = 10.0;
-
-    //cam.render(world_root);
-
 }
 
 void checkered_spheres(Scene& world) {
@@ -144,22 +102,6 @@ void checkered_spheres(Scene& world) {
 
     world.add(make_shared<sphere>(point3(0,-10, 0), 10, make_shared<lambertian>(checker)));
     world.add(make_shared<sphere>(point3(0, 10, 0), 10, make_shared<lambertian>(checker)));
-
-    camera cam;
-
-    cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 400;
-    cam.samples_per_pixel = 100;
-    cam.max_depth         = 50;
-
-    cam.vfov     = 20;
-    cam.lookfrom = point3(13,2,3);
-    cam.lookat   = point3(0,0,0);
-    cam.vup      = vec3(0,1,0);
-
-    cam.defocus_angle = 0;
-
-    //cam.render(world);
 }
 
 int main(int argc, char** argv) {
@@ -187,7 +129,11 @@ int main(int argc, char** argv) {
         case 3: earth(world); break;
     }
 
-    cam.render(world);
+    DefaultSampler sampler(10);
+
+    Renderer renderer(world, cam, sampler);
+
+    renderer.render();
 
     std::clog << "Runtime: " << std::setprecision(2) << clock.elapsed() << "s" << std::flush;
 
