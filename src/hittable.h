@@ -31,9 +31,9 @@ public:
 };
 
 // class for hittable objects
-class hittable {
+class Hittable {
 public:
-    virtual ~hittable() = default;
+    virtual ~Hittable() = default;
 
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
 

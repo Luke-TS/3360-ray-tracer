@@ -3,7 +3,7 @@
 #include "bvh.h"
 #include "camera.h"
 #include "material.h"
-#include "hittable_list.h"
+#include "scene.h"
 #include "sphere.h"
 #include "texture.h"
 #include "triangle.h"
@@ -16,12 +16,12 @@
 #include <memory>
 #include <ostream>
 
-void earth(hittable_list& world) {
+void earth(Scene& world) {
     auto earth_texture = make_shared<image_texture>("earthmap.jpg");
     auto earth_surface = make_shared<lambertian>(earth_texture);
     auto globe = make_shared<sphere>(point3(0,0,0), 2, earth_surface);
 
-    world = hittable_list(globe);
+    world = Scene(globe);
 
     camera cam;
 
@@ -38,8 +38,8 @@ void earth(hittable_list& world) {
     cam.defocus_angle = 0;
 }
 
-void spheres(hittable_list& world_root) {
-    hittable_list world;
+void spheres(Scene& world_root) {
+    Scene world;
 
     auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
     auto material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
@@ -139,7 +139,7 @@ void spheres(hittable_list& world_root) {
 
 }
 
-void checkered_spheres(hittable_list& world) {
+void checkered_spheres(Scene& world) {
     auto checker = make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
 
     world.add(make_shared<sphere>(point3(0,-10, 0), 10, make_shared<lambertian>(checker)));
@@ -180,7 +180,7 @@ int main(int argc, char** argv) {
     camera cam;
     cam.set_from_config(cameras[active]);
 
-    hittable_list world;
+    Scene world;
     switch(1) {
         case 1: spheres(world); break;
         case 2: checkered_spheres(world); break;

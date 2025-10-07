@@ -7,7 +7,7 @@
 #include "ray.h"
 #include <memory>
 
-class triangle : public hittable {
+class triangle : public Hittable {
 public:
     triangle(const point3& a, const point3& b, const point3& c, std::shared_ptr<material> mat) 
         : a(a), b(b), c(c), mat(mat) {

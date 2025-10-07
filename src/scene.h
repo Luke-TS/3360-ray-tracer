@@ -10,16 +10,16 @@
 using std::make_shared;
 using std::shared_ptr;
 
-class hittable_list : public hittable {
+class Scene : public Hittable {
 public:
-    std::vector<shared_ptr<hittable>> objects;
+    std::vector<shared_ptr<Hittable>> objects;
 
-    hittable_list() {}
-    hittable_list(shared_ptr<hittable> object) { add(object); }
+    Scene() {}
+    Scene(shared_ptr<Hittable> object) { add(object); }
 
     void clear() { objects.clear(); }
 
-    void add(shared_ptr<hittable> object) {
+    void add(shared_ptr<Hittable> object) {
         objects.push_back(object);
         bbox = aabb(bbox, object->bounding_box()); // expand box to accomodate object
     }

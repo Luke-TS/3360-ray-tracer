@@ -6,7 +6,7 @@
 #include "vec3.h"
 #include <memory>
 
-class sphere : public hittable {
+class sphere : public Hittable {
 public:
     sphere(const point3& center, double radius, std::shared_ptr<material> mat) 
             : center(center), radius(std::fmax(0,radius)), mat(mat) {

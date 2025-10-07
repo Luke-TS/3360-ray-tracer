@@ -2,13 +2,12 @@
 
 #include "Sampler.h"
 #include "camera.h"
-#include "hittable.h"
-#include "hittable_list.h"
+#include "scene.h"
 
 class Renderer {
 public:
     Sampler sampler;
-    hittable_list world;
+    Scene world;
     camera cam;
 
     void render() {
@@ -33,20 +32,14 @@ public:
             }
 
             for( int x = 0; x < width; x++ ) {
-                color pixel_color = sampler->sample_pixel(world, cam, x, y);
+                // aquire ray from the camera
+                ray r = cam.get_ray(x, y);
 
+                // aquire pixel color using sampler
+                color pixel_color = sampler.sample_pixel(world, r, cam);
+
+                // add color to framebuffer
                 framebuffer[x * width + y] = pixel_color;
-
-                auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-                auto ray_direction = pixel_center - center;
-                ray r(center, ray_direction);
-
-                color pixel_color(0,0,0);
-                for(int sample = 0; sample < samples_per_pixel; sample++) {
-                    ray r = get_ray(i, j);
-                    pixel_color += get_pixel(r, max_depth, world);
-                }
-                framebuffer[j * image_width + i] = pixel_color;
             }
         }
 

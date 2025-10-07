@@ -1,16 +1,16 @@
 #pragma once
 
 #include "hittable.h"
-#include "hittable_list.h"
+#include "scene.h"
 #include "triangle.h"
 
 #include <memory>
 #include <vector>
 #include <array>
 
-class triangle_mesh : public hittable {
+class triangle_mesh : public Hittable {
 public:
-    hittable_list tris;
+    Scene tris;
 
     triangle_mesh(const std::vector<point3>& vertices,
                   const std::vector<std::array<int,3>>& indices,

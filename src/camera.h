@@ -1,8 +1,6 @@
 #pragma once
 
 #include <cmath>
-#include <iostream>
-#include <vector>
 #include <omp.h>
 
 #include <nlohmann/json.hpp>
@@ -65,7 +63,6 @@ class camera {
 public:
     double aspect_ratio = 1.0;
     int    image_width  = 100;
-    int    samples_per_pixel = 10;
     int    max_depth = 10;
 
     double vfov = 90.0;
@@ -79,7 +76,6 @@ public:
     void set_from_config(const CameraConfig& cfg) {
         aspect_ratio = cfg.aspect_ratio;
         image_width = cfg.image_width;
-        samples_per_pixel = cfg.samples_per_pixel;
         max_depth = cfg.max_depth;
 
         vfov = cfg.vfov;
@@ -91,13 +87,11 @@ public:
         focus_dist = cfg.focus_dist;
     }
 
+    // initializes private variables from public config
     void initialize() {
-
         // calculate correct image height
         image_height = int(image_width / aspect_ratio);
         image_height = (image_height < 1) ? 1 : image_height; // height at least 1
-        
-        pixel_samples_scale = 1.0 / samples_per_pixel;
         
         center = lookfrom;
 
@@ -127,6 +121,7 @@ public:
         defocus_disk_v = v * defocus_radius;
     }
 
+    // get random ray at index (i, j)
     ray get_ray(int i, int j) const {
         auto offset = sample_square();
         auto pixel_sample = pixel00_loc
@@ -139,16 +134,9 @@ public:
         return ray(ray_origin, ray_direction);
     }
 
-    int get_image_height() {
-        return image_height;
-    }
-
-    int get_image_width() {
-        return image_width;
-    }
 
     // used to aquire pixel value
-    color get_pixel(const ray& r, int depth, const hittable& world) const {
+    color get_pixel(const ray& r, int depth, const Hittable& world) const {
         if( depth <= 0 ) {
             return color(0,0,0);
         }
@@ -170,6 +158,14 @@ public:
         vec3 unit_direction = unit_vector(r.direction());
         auto a = 0.5 * (unit_direction.y() + 1.0); // normalize y to 0.0 <= z <= 1.0
         return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // white to blue gradient
+    }
+
+    int get_image_height() {
+        return image_height;
+    }
+
+    int get_image_width() {
+        return image_width;
     }
 
 private:

@@ -2,16 +2,16 @@
 
 #include "aabb.h"
 #include "hittable.h"
-#include "hittable_list.h"
+#include "scene.h"
 #include "triangle_mesh.h"
 
 #include <algorithm>
 
-class bvh_node : public hittable {
+class bvh_node : public Hittable {
   public:
     bvh_node(triangle_mesh& mesh) : bvh_node(mesh.tris) {}
 
-    bvh_node(hittable_list& list) : bvh_node(list.objects, 0, list.objects.size()) {
+    bvh_node(Scene& list) : bvh_node(list.objects, 0, list.objects.size()) {
         // There's a C++ subtlety here. This constructor (without span indices) creates an
         // implicit copy of the hittable list, which we will modify. The lifetime of the copied
         // list only extends until this constructor exits. That's OK, because we only need to
@@ -90,27 +90,27 @@ class bvh_node : public hittable {
 
   private:
     std::vector<std::shared_ptr<hittable>> primitives;
-    shared_ptr<hittable> left;
-    shared_ptr<hittable> right;
+    shared_ptr<Hittable> left;
+    shared_ptr<Hittable> right;
     aabb bbox;
 
     static bool box_compare(
-        const shared_ptr<hittable> a, const shared_ptr<hittable> b, int axis_index
+        const shared_ptr<Hittable> a, const shared_ptr<Hittable> b, int axis_index
     ) {
         auto a_axis_interval = a->bounding_box().axis_interval(axis_index);
         auto b_axis_interval = b->bounding_box().axis_interval(axis_index);
         return a_axis_interval.min < b_axis_interval.min;
     }
 
-    static bool box_x_compare (const shared_ptr<hittable> a, const shared_ptr<hittable> b) {
+    static bool box_x_compare (const shared_ptr<Hittable> a, const shared_ptr<Hittable> b) {
         return box_compare(a, b, 0);
     }
 
-    static bool box_y_compare (const shared_ptr<hittable> a, const shared_ptr<hittable> b) {
+    static bool box_y_compare (const shared_ptr<Hittable> a, const shared_ptr<Hittable> b) {
         return box_compare(a, b, 1);
     }
 
-    static bool box_z_compare (const shared_ptr<hittable> a, const shared_ptr<hittable> b) {
+    static bool box_z_compare (const shared_ptr<Hittable> a, const shared_ptr<Hittable> b) {
         return box_compare(a, b, 2);
     }
 };
