@@ -34,7 +34,7 @@ public:
                 color pixel_color = sampler.sample_pixel(world, cam, x, y);
 
                 // add color to framebuffer
-                framebuffer[x * width + y] = pixel_color;
+                framebuffer[y * width + x] = pixel_color;
             }
         }
 

@@ -64,6 +64,7 @@ public:
     double aspect_ratio = 1.0;
     int    image_width  = 100;
     int    max_depth = 10;
+    int    samples_per_pixel = 10;
 
     double vfov = 90.0;
     vec3   lookfrom = point3(0,0,0); // position of camera
@@ -77,6 +78,7 @@ public:
         aspect_ratio = cfg.aspect_ratio;
         image_width = cfg.image_width;
         max_depth = cfg.max_depth;
+        samples_per_pixel = cfg.samples_per_pixel;
 
         vfov = cfg.vfov;
         lookfrom = cfg.lookfrom;

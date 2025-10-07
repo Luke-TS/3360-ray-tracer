@@ -8,14 +8,9 @@
 #include "Sampler.h"
 #include "sphere.h"
 #include "texture.h"
-#include "triangle.h"
-#include "triangle_mesh.h"
 #include "timer.h"
-#include "load_obj.h"
-#include <atomic>
 #include <iomanip>
 #include <iostream>
-#include <memory>
 #include <ostream>
 
 void earth(Scene& world) {
@@ -72,7 +67,6 @@ void spheres(Scene& world_root) {
             }
         }
     }
-    
 
     auto material1 = make_shared<dielectric>(1.5);
     world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
@@ -102,6 +96,8 @@ void checkered_spheres(Scene& world) {
 
     world.add(make_shared<sphere>(point3(0,-10, 0), 10, make_shared<lambertian>(checker)));
     world.add(make_shared<sphere>(point3(0, 10, 0), 10, make_shared<lambertian>(checker)));
+
+    world.add(make_shared<bvh_node>(world.objects, 0, world.objects.size()));
 }
 
 int main(int argc, char** argv) {
@@ -129,28 +125,11 @@ int main(int argc, char** argv) {
         case 3: earth(world); break;
     }
 
-    DefaultSampler sampler(10);
+    DefaultSampler sampler(cam.samples_per_pixel);
 
     Renderer renderer(world, cam, sampler);
 
     renderer.render();
 
     std::clog << "Runtime: " << std::setprecision(2) << clock.elapsed() << "s" << std::flush;
-
-    /*
-    std::clog << "Num triangles: " << world_root.objects.size() << '\n';
-    
-    std::clog << "\nPrimitive tests: " << g_num_primitive_tests
-          << "\nBox tests: " << g_num_box_tests
-          << "\nAverage primitive tests per pixel: "
-          << (double)g_num_primitive_tests / (cam.image_width * (cam.aspect_ratio + 1))
-          << "\nAverage box tests per pixel: "
-          << (double)g_num_box_tests / (cam.image_width * (cam.aspect_ratio + 1))
-          << "\nAverage primitive tests per ray: "
-          << (double)g_num_primitive_tests / (cam.samples_per_pixel * cam.image_width * (cam.aspect_ratio + 1))
-          << "\nAverage box tests per ray: "
-          << (double)g_num_box_tests / (cam.samples_per_pixel * cam.image_width * (cam.aspect_ratio + 1))
-          << std::endl;
-    */
-
 }
