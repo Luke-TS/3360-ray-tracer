@@ -63,8 +63,10 @@ mkdir build && cd build
 cmake ..
 make
 
+# Create scene or select preset by modifying main.cpp
+
 # Run the ray tracer
-./raytracer ../scenes/example_scene.json
+./raytracer > out.ppm
 ```
 
 ## Usage
@@ -127,7 +129,7 @@ Images are output to stdout in ppm format.
 - [ ] Complete hybrid GPU rendering implementation
 - [ ] Additional material models (anisotropic, subsurface scattering, emissive)
 - [ ] Alternative sampling methods
-- [ ] Denoising algorithms
+- [ ] Improved method for creating scenes
 - [ ] Progressive rendering with live preview
 
 ## Learning Outcomes
