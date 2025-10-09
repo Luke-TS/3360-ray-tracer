@@ -122,7 +122,7 @@ Images are output to stdout in ppm format.
 
 | Cornell Box | Glass Spheres | Textured Mesh |
 |-------------|---------------|---------------|
-| ![Cornell](path) | ![Glass](images/glass.png) | ![Mesh](images/mesh.png) |
+| ![TDOD](outputs-png/cornell.png) | ![TODO](outputs-png/glass.png) | ![TODO](outputs-png/mesh.png) |
 
 ## Future Improvements
 
