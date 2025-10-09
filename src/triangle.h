@@ -9,6 +9,8 @@
 
 class triangle : public Hittable {
 public:
+    int gpu_index;
+
     triangle(const point3& a, const point3& b, const point3& c, std::shared_ptr<material> mat) 
         : a(a), b(b), c(c), mat(mat) {
         // per-axis min and max
@@ -82,6 +84,18 @@ public:
 
     virtual aabb bounding_box() const override {
         return bbox;
+    }
+
+    virtual int type_id() const override {
+        return HITTABLE_TRIANGLE;
+    }
+
+    virtual int object_index() const override {
+        return gpu_index;
+    }
+
+    virtual void set_object_index(int i) override {
+        gpu_index = i;
     }
 
 private:

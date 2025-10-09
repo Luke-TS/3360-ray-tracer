@@ -30,6 +30,11 @@ public:
     }
 };
 
+enum HittableType {
+    HITTABLE_SPHERE = 0,
+    HITTABLE_TRIANGLE = 1,
+};;
+
 // class for hittable objects
 class Hittable {
 public:
@@ -38,4 +43,8 @@ public:
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
 
     virtual aabb bounding_box() const = 0;
+
+    virtual int type_id() const = 0;
+    virtual int object_index() const = 0;
+    virtual void set_object_index(int i) = 0;
 };

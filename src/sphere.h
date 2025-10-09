@@ -8,6 +8,8 @@
 
 class sphere : public Hittable {
 public:
+    int gpu_index = -1;
+
     sphere(const point3& center, double radius, std::shared_ptr<material> mat) 
             : center(center), radius(std::fmax(0,radius)), mat(mat) {
         vec3 radius_vec = vec3(radius, radius, radius);
@@ -50,6 +52,18 @@ public:
 
     virtual aabb bounding_box() const override {
         return bbox;
+    }
+
+    virtual int type_id() const override {
+        return HITTABLE_SPHERE;
+    }
+
+    virtual int object_index() const override {
+        return gpu_index;
+    }
+
+    virtual void set_object_index(int i) override {
+        gpu_index = i;
     }
 
     static void get_sphere_uv(const point3& p, double& u, double& v) {

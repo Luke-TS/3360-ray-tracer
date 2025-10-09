@@ -9,6 +9,10 @@
 
 class bvh_node : public Hittable {
   public:
+    std::vector<std::shared_ptr<Hittable>> primitives;
+    shared_ptr<Hittable> left;
+    shared_ptr<Hittable> right;
+
     bvh_node(triangle_mesh& mesh) : bvh_node(mesh.tris) {}
 
     bvh_node(Scene& list) : bvh_node(list.objects, 0, list.objects.size()) {
@@ -88,10 +92,12 @@ class bvh_node : public Hittable {
 
     aabb bounding_box() const override { return bbox; }
 
+    // ignore: functions only used by primitives
+    virtual int type_id() const override { return -1; }
+    virtual int object_index() const override { return -1; }
+    virtual void set_object_index(int i) override {}
+
   private:
-    std::vector<std::shared_ptr<Hittable>> primitives;
-    shared_ptr<Hittable> left;
-    shared_ptr<Hittable> right;
     aabb bbox;
 
     static bool box_compare(

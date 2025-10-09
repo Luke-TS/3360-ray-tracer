@@ -41,6 +41,11 @@ public:
     }
 
     aabb bounding_box() const override { return bbox; }
+
+    // ignore: functions only used by primitives
+    virtual int type_id() const override { return -1; }
+    virtual int object_index() const override { return -1; }
+    virtual void set_object_index(int i) override {}
 private:
     aabb bbox; // bounding box containing all objects
 };
