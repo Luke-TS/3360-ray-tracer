@@ -63,8 +63,10 @@ mkdir build && cd build
 cmake ..
 make
 
+# Create scene or select preset by modifying main.cpp
+
 # Run the ray tracer
-./raytracer ../scenes/example_scene.json
+./raytracer > out.ppm
 ```
 
 ## Usage
@@ -120,14 +122,14 @@ Images are output to stdout in ppm format.
 
 | Cornell Box | Glass Spheres | Textured Mesh |
 |-------------|---------------|---------------|
-| ![Cornell](path) | ![Glass](images/glass.png) | ![Mesh](images/mesh.png) |
+| ![TDOD](outputs-png/cornell.png) | ![TODO](outputs-png/glass.png) | ![TODO](outputs-png/mesh.png) |
 
 ## Future Improvements
 
 - [ ] Complete hybrid GPU rendering implementation
 - [ ] Additional material models (anisotropic, subsurface scattering, emissive)
 - [ ] Alternative sampling methods
-- [ ] Denoising algorithms
+- [ ] Improved method for creating scenes
 - [ ] Progressive rendering with live preview
 
 ## Learning Outcomes
