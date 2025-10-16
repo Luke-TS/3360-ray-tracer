@@ -5,6 +5,7 @@
 
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include <sched.h>
 #include <unordered_map>
 
 #include "color.h"
@@ -124,7 +125,7 @@ public:
     }
 
     // get random ray at index (i, j)
-    ray get_ray(int i, int j) const {
+    virtual ray get_ray(int i, int j) const {
         auto offset = sample_square();
         auto pixel_sample = pixel00_loc
                             + ((i + offset.x()) * pixel_delta_u)
@@ -138,7 +139,7 @@ public:
 
 
     // used to aquire pixel value
-    color get_pixel(const ray& r, int depth, const Hittable& world) const {
+    virtual color get_pixel(const ray& r, int depth, const Hittable& world) const {
         if( depth <= 0 ) {
             return color(0,0,0);
         }
@@ -191,4 +192,40 @@ private:
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
+};
+
+class color_camera : public camera {
+
+};
+
+// get_pixel returns red depth map in red gradient
+// rays are normalized to 1 unit
+// 0 units = 100% red
+// max_dist units = black
+class depth_camera : public camera {
+public:
+    virtual color get_pixel(const ray& r, int depth, const Hittable& world) const override {
+        if( depth <= 0 ) {
+            return color(0,0,0);
+        }
+
+        hit_record rec;
+        ray r_norm = ray(r.origin(), unit_vector(r.direction()));
+
+
+        // shadow acne is caused by rounding errors resulting in intersection
+        // points slightly inside or outside surfaces
+        // use interval with t >= 0.001 to avoid repeat intersections
+        if(world.hit(r_norm, interval(0.001, infinity), rec)) {
+            ray scattered;
+            color attenuation;
+            return color( 1-(rec.t/max_dist),0,0);
+        }
+
+        vec3 unit_direction = unit_vector(r.direction());
+        auto a = 0.5 * (unit_direction.y() + 1.0); // normalize y to 0.0 <= z <= 1.0
+        return color(0, 0, 0); // return black
+    }
+private:
+    int max_dist = 10;
 };

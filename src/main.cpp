@@ -160,7 +160,7 @@ int main(int argc, char** argv) {
         std::cerr << "Camera '" << active << "' not found. Using default.\n";
         active = "default";
     }
-    camera cam;
+    color_camera cam;
     cam.set_from_config(cameras[active]);
 
     Scene world;
