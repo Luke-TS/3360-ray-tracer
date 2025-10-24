@@ -152,10 +152,14 @@ public:
         if(world.hit(r, interval(0.001, infinity), rec)) {
             ray scattered;
             color attenuation;
+            color emitted = rec.mat->emitted(rec.u, rec.v, rec.p);
+
             if( rec.mat->scatter(r, rec, attenuation, scattered) ) {
-                return attenuation * get_pixel(scattered, depth-1, world);
+                return emitted + attenuation * get_pixel(scattered, depth-1, world);
             }
-            return color(0,0,0);
+            else {
+                return emitted;
+            }
         }
 
         vec3 unit_direction = unit_vector(r.direction());
@@ -219,7 +223,7 @@ public:
         if(world.hit(r_norm, interval(0.001, infinity), rec)) {
             ray scattered;
             color attenuation;
-            return color( 1-(rec.t/max_dist),0,0);
+            return color( rec.t < max_dist ? rec.t : 0,0,0);
         }
 
         vec3 unit_direction = unit_vector(r.direction());
@@ -227,5 +231,5 @@ public:
         return color(0, 0, 0); // return black
     }
 private:
-    int max_dist = 10;
+    int max_dist = 20;
 };

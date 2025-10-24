@@ -7,6 +7,7 @@
 #include "renderer.h"
 #include "Sampler.h"
 #include "sphere.h"
+#include "rect.h"
 #include "hybrid_render.h"
 #include "texture.h"
 #include "timer.h"
@@ -50,6 +51,40 @@ void gpu_flatten_test(Scene& scene) {
     gpu_flatten_test(scene);
 }
 
+void cornell_box(Scene& world_root) {
+    Scene world;
+
+    // Materials
+    auto red   = make_shared<lambertian>(color(.65, .05, .05));
+    auto white = make_shared<lambertian>(color(.73, .73, .73));
+    auto green = make_shared<lambertian>(color(.12, .45, .15));
+    auto light = make_shared<diffuse_light>(color(8, 8, 8));
+
+    // We'll scale 555 → 10
+    // (so 1 world unit ≈ 55.5 Cornell units)
+    const double box_size = 10.0;
+    const double half_box = box_size / 2.0;
+
+    // Walls
+    world.add(make_shared<yz_rect>(0, box_size, 0, box_size,  box_size, green)); // Right wall
+    world.add(make_shared<yz_rect>(0, box_size, 0, box_size,  0, red));         // Left wall
+    world.add(make_shared<xz_rect>(3.8, 6.2, 3.8, 6.2, box_size - 0.01, light)); // Ceiling light
+    world.add(make_shared<xz_rect>(0, box_size, 0, box_size,  0, white));       // Floor
+    world.add(make_shared<xz_rect>(0, box_size, 0, box_size,  box_size, white)); // Ceiling
+    world.add(make_shared<xy_rect>(0, box_size, 0, box_size,  box_size, white)); // Back wall
+
+    // Optional: add test spheres
+    auto glass = make_shared<dielectric>(1.5);
+    auto metal_surface = make_shared<metal>(color(0.8, 0.8, 0.9), 0.05);
+    auto diffuse = make_shared<lambertian>(color(0.8, 0.3, 0.1));
+
+    world.add(make_shared<sphere>(point3(3.0, 1.0, 4.0), 1.0, glass));
+    world.add(make_shared<sphere>(point3(7.0, 1.0, 6.0), 1.0, metal_surface));
+    world.add(make_shared<sphere>(point3(5.0, 0.5, 2.0), 0.5, diffuse));
+
+    // Add to world root
+    world_root.add(make_shared<bvh_node>(world.objects, 0, world.objects.size()));
+}
 
 void earth(Scene& world) {
     auto earth_texture = make_shared<image_texture>("earthmap.jpg");
@@ -164,11 +199,12 @@ int main(int argc, char** argv) {
     cam.set_from_config(cameras[active]);
 
     Scene world;
-    switch(1) {
+    switch(5) {
         case 1: spheres(world); break;
         case 2: checkered_spheres(world); break;
         case 3: earth(world); break;
         case 4: gpu_flatten_test(world); break;
+        case 5: cornell_box(world); break;
     }
 
     DefaultSampler default_sampler(cam.samples_per_pixel);

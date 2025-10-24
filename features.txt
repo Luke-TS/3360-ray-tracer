@@ -14,17 +14,15 @@ Completed:
   - random axis, 4 primative leaf nodes
 - triangle rendering
 - triangle meshes
-
-In progress:
 - Texture mapping
 - Emissive materials (light)
+- axis-aligned squares
+- adaptive sampling
 
-Future:
-- Importance Sampling
-  - partialy implemented with cos(theta) weighting on lambertian materials
-  - bais samples towards important objects (emissive)
-- Adaptive Sampling
-  - allocate more samples when variance is high
+In progress:
+- importance sampling (bias toward emissive)
+
+Future:emissive)
 - Path guidance
   - learn from radiance distribution to influence sampling
   - statistical or ML approach

@@ -19,6 +19,10 @@ public:
     ) const {
         return false;
     }
+
+    virtual color emitted(double u, double v, const point3& p) const {
+        return color(0,0,0);
+    };
 };
 
 /**
@@ -100,4 +104,25 @@ private:
         r0 = r0 * r0;
         return r0 + (1-r0)*std::pow((1-cosine), 5);
     }
+};
+
+class diffuse_light : public material {
+public:
+    diffuse_light(shared_ptr<texture> tex) : emit(tex) {}
+    diffuse_light(const color& c) : emit(make_shared<solid_color>(c)) {}
+
+    // Emissive surfaces don't scatter; they just emit
+    bool scatter(
+        const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
+    ) const override {
+        return false;
+    }
+
+    // Return emitted radiance (light) at hit point
+    color emitted(double u, double v, const point3& p) const override {
+        return emit->value(u, v, p);
+    }
+
+private:
+    shared_ptr<texture> emit;
 };

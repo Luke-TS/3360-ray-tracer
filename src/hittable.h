@@ -33,6 +33,7 @@ public:
 enum HittableType {
     HITTABLE_SPHERE = 0,
     HITTABLE_TRIANGLE = 1,
+    HITTABLE_SQUARE = 2,
 };;
 
 // class for hittable objects
