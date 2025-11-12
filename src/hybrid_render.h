@@ -15,6 +15,11 @@ struct primitive_ref {
     int index;
 };
 
+/**
+* Converts bvh tree to flat vectors for purposes of CUDA programming.
+* flat_nodes contains bvh_node_GPU struct containing bbox information and child node or primative information
+* flat_prims containts primitive_ref struct which contains an enum type (triangle, square, circle, etc) and the object index
+*/
 inline int flatten_bvh(const bvh_node* node,
                 std::vector<bvh_node_GPU>& flat_nodes,
                 std::vector<primitive_ref>& flat_prims)
