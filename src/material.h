@@ -53,6 +53,15 @@ private:
     shared_ptr<texture> tex;
 };
 
+/*
+* metal objects scatter rays using mirrored reflection
+*
+* a random unit vector is added to the reflected ray, scaled by fuzz
+* fuzz controls how 'polished' the metal appears
+* fuzz == 0 --> perfect reflections (mirror)
+* fuzz >  0 --> reflections slightly random, appears slightly blurred
+* fuzz == 1 --> rough metal, reflections heavily smeared
+*/
 class metal : public material {
 public:
     metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}

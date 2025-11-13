@@ -110,11 +110,12 @@ public:
 
                         const ray& r = batch_rays[i];
 
-                        // MISS or max depth → accumulate *background*
+                        // ray doesn't hit or reaches maximum depth
                         if (!rec.hit || rs.depth >= max_depth) {
                             color L = rs.throughput * background(r);
                             ps.sum += L;
-                            ps.samples++;
+
+                            ps.samples++; // terminate
                             continue;
                         }
 
@@ -122,26 +123,23 @@ public:
                         color emitted = rec.mat->emitted(rec.u, rec.v, rec.p);
                         color L = rs.throughput * emitted;
                         ps.sum += L;
-                        ps.samples++;
 
-                        // Now scatter
+                        // check for scattered ray
                         ray   scattered;
                         color attenuation;
-
                         if (!rec.mat->scatter(r, rec, attenuation, scattered)) {
-                            // Non-scattering material = only emitted (same as recursive)
+                            ps.samples++; // terminate
                             continue;
                         }
 
-                        // Spawn child ray
+                        // scattered ray exists --> generate child ray
                         RayState child;
                         child.r           = scattered;
-                        child.pixel_index = rs.pixel_index;
-                        child.depth       = rs.depth + 1;
-                        child.throughput  = rs.throughput * attenuation;
+                        child.pixel_index = rs.pixel_index;              // same pixel index
+                        child.depth       = rs.depth + 1;                // increment depth
+                        child.throughput  = rs.throughput * attenuation; // attenuate throughput
 
-                        // Optional Russian roulette
-                        /*
+                        // russian roulette
                         if (child.depth > 5) {
                             double p = std::max({
                                 child.throughput.x(),
@@ -149,10 +147,12 @@ public:
                                 child.throughput.z()
                             });
                             p = std::clamp(p, 0.1, 0.95);
-                            if (random_double() > p) continue;
+                            if (random_double() > p) {
+                                ps.samples++; // terminate
+                                continue;
+                            } 
                             child.throughput /= p;
                         }
-                        */
 
                         thread_local_queues[tid].push_back(child);
                     }
@@ -206,7 +206,7 @@ private:
     int            batch_size;
 
     static color background(const ray& r) {
-        // Simple RTIOW-style gradient — replace with your own
+        // gradient background
         vec3 unit_direction = unit_vector(r.direction());
         auto t = 0.5 * (unit_direction.y() + 1.0);
         return (1.0 - t) * color(1.0, 1.0, 1.0)

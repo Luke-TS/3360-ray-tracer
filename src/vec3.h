@@ -104,6 +104,7 @@ inline vec3 cross(const vec3& u, const vec3& v) {
                 u.e[0] * v.e[1] - u.e[1] * v.e[0]);
 }
 
+// calculates reflected ray from an incoming ray and a surface normal
 inline vec3 reflect(const vec3& v, const vec3& n) {
     return v - 2*dot(v, n)*n;
 }

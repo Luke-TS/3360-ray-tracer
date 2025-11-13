@@ -41,19 +41,6 @@ void flatten_bvh_debug(Scene& scene) {
     }
 }
 
-void gpu_flatten_test(Scene& scene) {
-    auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-
-    // Add a few spheres
-    scene.add(std::make_shared<sphere>(vec3(0, 0, -1), 0.5f, material_ground));
-    scene.add(std::make_shared<sphere>(vec3(1, 0, -1), 0.5f, material_ground));
-    scene.add(std::make_shared<sphere>(vec3(-1, 0, -1), 0.5f, material_ground));
-    scene.add(std::make_shared<sphere>(vec3(0, -100.5, -1), 100.0f, material_ground));
-
-    // Build BVH
-    gpu_flatten_test(scene);
-}
-
 void cornell_box(Scene& world_root) {
     Scene world;
 
@@ -170,8 +157,6 @@ void spheres(Scene& world_root) {
     // world.add(bunny_bvh);
 
     world_root.add(make_shared<bvh_node>(world.objects, 0, world.objects.size()));
-
-    //gpu_flatten_test(world);
 }
 
 void checkered_spheres(Scene& world) {
@@ -207,8 +192,7 @@ int main(int argc, char** argv) {
         case 1: spheres(world); break;
         case 2: checkered_spheres(world); break;
         case 3: earth(world); break;
-        case 4: gpu_flatten_test(world); break;
-        case 5: cornell_box(world); break;
+        case 4: cornell_box(world); break;
     }
 
     DefaultSampler default_sampler(cam.samples_per_pixel);
