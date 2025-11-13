@@ -1,9 +1,6 @@
 #pragma once
 
 #include "main.h"
-#include <cmath>
-#include <cstdlib>
-#include <ostream>
 
 // simple 3-coordinate vector class
 class vec3 {

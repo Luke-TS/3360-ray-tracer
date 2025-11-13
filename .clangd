@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: ["--cuda-host-only"]

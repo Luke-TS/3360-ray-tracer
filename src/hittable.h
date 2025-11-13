@@ -14,9 +14,10 @@ class material;
 
 class hit_record {
 public:
+    bool hit;
     point3 p; // hit point
     vec3 normal; // normal vector
-    std::shared_ptr<material> mat;
+    shared_ptr<material> mat;
     double t; // time of hit
     bool front_face;
 
@@ -28,6 +29,13 @@ public:
         front_face = dot(r.direction(), outward_normal) < 0;
         normal = front_face ? outward_normal : -outward_normal;
     }
+
+    hit_record() = default;
+    hit_record(const hit_record&) = default;
+    hit_record(hit_record&&) = default;
+    hit_record& operator=(const hit_record&) = default;   // <-- important
+    hit_record& operator=(hit_record&&) = default;        // <-- important
+    ~hit_record() = default;
 };
 
 enum HittableType {

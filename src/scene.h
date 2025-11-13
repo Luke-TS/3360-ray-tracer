@@ -1,11 +1,9 @@
 #pragma once
 
-#include "aabb.h"
-#include "hittable.h"
-#include "interval.h"
-
-#include <memory>
 #include <vector>
+
+#include "hittable.h"
+
 
 using std::make_shared;
 using std::shared_ptr;

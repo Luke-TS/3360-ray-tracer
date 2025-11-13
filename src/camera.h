@@ -167,11 +167,11 @@ public:
         return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // white to blue gradient
     }
 
-    int get_image_height() {
+    int get_image_height() const {
         return image_height;
     }
 
-    int get_image_width() {
+    int get_image_width() const {
         return image_width;
     }
 

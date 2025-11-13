@@ -5,7 +5,6 @@
 #include "ray.h"
 #include "vec3.h"
 #include "texture.h"
-#include <memory>
 
 /**
  * abstract class for materials defining how rays scatter when intersecting

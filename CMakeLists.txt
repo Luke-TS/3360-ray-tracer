@@ -1,34 +1,40 @@
-cmake_minimum_required(VERSION 3.18) # CUDA requires ≥ 3.18 for modern language support
+cmake_minimum_required(VERSION 3.18)
 project(ray_tracer LANGUAGES CXX CUDA)
 
-# ─── Compiler settings ────────────────────────────────────────────────
+# ─── C++ Settings ────────────────────────────────────────────────
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# CUDA settings (optional but recommended)
+# ─── CUDA Settings ────────────────────────────────────────────────
 set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)  # allows linking device code across translation units
-set(CMAKE_CUDA_ARCHITECTURES 86)          # adjust for your GPU (75=Turing, 86=Ampere, 89=Ada)
+set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
+set(CMAKE_CUDA_ARCHITECTURES 86)
 
-# ─── Dependencies ────────────────────────────────────────────────────
-add_subdirectory(external/tinyobjloader)
-
-# ─── Source files ────────────────────────────────────────────────
-# Automatically collect all source files (.cpp, .cu, .h, etc.) under src/
-file(GLOB_RECURSE SOURCE_FILES
+# ─── Collect sources (NO HEADERS) ─────────────────────────────────
+file(GLOB_RECURSE CPP_SOURCES
     "${CMAKE_SOURCE_DIR}/src/*.cpp"
-    "${CMAKE_SOURCE_DIR}/src/*.cu"
-    "${CMAKE_SOURCE_DIR}/src/*.h"
-    "${CMAKE_SOURCE_DIR}/src/*.hpp"
 )
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+file(GLOB_RECURSE CUDA_SOURCES
+    "${CMAKE_SOURCE_DIR}/src/*.cu"
+)
 
-# ─── OpenMP ──────────────────────────────────────────────────────────
-find_package(OpenMP REQUIRED)
+add_executable(${PROJECT_NAME} 
+    ${CPP_SOURCES}
+    ${CUDA_SOURCES}
+)
 
-# ─── nlohmann/json (via FetchContent) ────────────────────────────────
+# ─── Include paths ────────────────────────────────────────────────
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/external/tinyobjloader
+)
+
+# ─── Dependencies ────────────────────────────────────────────────
+add_subdirectory(external/tinyobjloader)
+
 include(FetchContent)
 FetchContent_Declare(
     json
@@ -37,12 +43,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
-# ─── Includes ────────────────────────────────────────────────────────
-target_include_directories(${PROJECT_NAME}
-    PRIVATE ${CMAKE_SOURCE_DIR}/external/tinyobjloader
-)
+# ─── Link libraries ────────────────────────────────────────────────
+find_package(OpenMP REQUIRED)
 
-# ─── Link libraries ──────────────────────────────────────────────────
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         OpenMP::OpenMP_CXX
@@ -50,7 +53,7 @@ target_link_libraries(${PROJECT_NAME}
         nlohmann_json::nlohmann_json
 )
 
-# ─── Optional compile warnings ───────────────────────────────────────
+# ─── Warnings ─────────────────────────────────────────────────────
 target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:-Wall -Wextra -Wpedantic>
     $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=-Wall>

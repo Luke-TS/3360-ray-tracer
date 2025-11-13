@@ -8,9 +8,12 @@
 #include "Sampler.h"
 #include "sphere.h"
 #include "rect.h"
-#include "hybrid_render.h"
+#include "gpu_utils.h"
 #include "texture.h"
 #include "timer.h"
+#include "wavefront_renderer.h"
+#include "cpu_ray_integrator.h"
+
 #include <iomanip>
 #include <iostream>
 #include <ostream>
@@ -197,9 +200,10 @@ int main(int argc, char** argv) {
     }
     color_camera cam;
     cam.set_from_config(cameras[active]);
+    cam.initialize();
 
     Scene world;
-    switch(5) {
+    switch(1) {
         case 1: spheres(world); break;
         case 2: checkered_spheres(world); break;
         case 3: earth(world); break;
@@ -210,7 +214,11 @@ int main(int argc, char** argv) {
     DefaultSampler default_sampler(cam.samples_per_pixel);
     AdaptiveSampler adaptive_sampler(30, 250, 0.1f);
 
-    Renderer renderer(world, cam, default_sampler);
+    //Renderer renderer(world, cam, default_sampler);
+
+    CPURayIntegrator integrator(&world); 
+
+    WavefrontRenderer renderer(world, cam, integrator, cam.max_depth, cam.samples_per_pixel, 8192);
 
     renderer.render();
 
