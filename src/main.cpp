@@ -207,7 +207,7 @@ int main(int argc, char** argv) {
 
     CPURayIntegrator integrator(&world); 
 
-    WavefrontRenderer renderer(world, cam, integrator, cam.max_depth, cam.samples_per_pixel, 8192);
+    WavefrontRenderer renderer(world, cam, integrator, cam.max_depth, cam.samples_per_pixel, 2 * 8192);
 
     renderer.render();
 
