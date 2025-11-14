@@ -12,7 +12,7 @@ public:
     MegaKernel(scene::Scene& scene, scene::Camera& camera, integrator::Sampler& sampler)
         : sampler_(sampler), world_(scene), cam_(camera) {}
 
-    void render() {
+    void Render() {
         cam_.Initialize();
         int width = cam_.get_image_width();
         int height = cam_.get_image_height();

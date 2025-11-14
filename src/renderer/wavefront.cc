@@ -1,6 +1,7 @@
 #include "renderer/wavefront.h"
 
 #include "material/material.h"
+#include "math_utils.h"
 #include "scene/scene.h"
 #include "scene/camera.h"
 #include "geom/hittable.h"
@@ -36,7 +37,6 @@ core::Color WavefrontRenderer::background(const core::Ray& r) {
          + t         * core::Color(0.5, 0.7, 1.0);
 }
 
-// Render()
 void WavefrontRenderer::Render() {
 
     const float kRelThresh  = 0.05;  // Adaptive threshold
@@ -79,7 +79,7 @@ void WavefrontRenderer::Render() {
         }
 
         std::clog << "Sample " << s
-                  << "    queue=" << ray_queue.size() << "\n";
+            << "    queue=" << ray_queue.size() << "\n";
 
         // Process queue
         while (!ray_queue.empty()) {
@@ -104,9 +104,9 @@ void WavefrontRenderer::Render() {
 
                 int thread_count = omp_get_max_threads();
                 std::vector<std::vector<integrator::RayState>>
-                    local_queues(thread_count);
+                local_queues(thread_count);
 
-#pragma omp parallel for schedule(dynamic)
+                #pragma omp parallel for schedule(dynamic)
                 for (int i = 0; i < (int)count; i++) {
 
                     int tid = omp_get_thread_num();
@@ -141,11 +141,14 @@ void WavefrontRenderer::Render() {
                         continue;
                     }
 
-                    // Scatter
-                    core::Ray scattered;
-                    core::Color attenuation;
+                    // BSDF reflections
+                    core::Vec3 wo = -core::Normalize(r.direction());
+                    core::Vec3 wi;
+                    float pdf = 0.0f;
+                    core::Color f;
 
-                    if (!rec.mat->Scatter(r, rec, attenuation, scattered)) {
+                    if (!rec.mat->Sample(rec, wo, wi, pdf, f)) {
+                        // no scattering
                         integrator::RecordSample(ps, L);
                         if (!ps.converged &&
                             integrator::IsConverged(ps, kRelThresh, kMinSamples))
@@ -157,11 +160,32 @@ void WavefrontRenderer::Render() {
                         continue;
 
                     integrator::RayState child;
-                    child.r           = scattered;
+                    child.r           = core::Ray(rec.p, wi);
                     child.pixel_index = rs.pixel_index;
                     child.depth       = rs.depth + 1;
-                    child.throughput  = rs.throughput * attenuation;
 
+                    if (rec.mat->IsSpecular()) {
+                        // delta BSDF: f already encodes the contribution
+                        // DON'T apply cosθ or divide by pdf
+                        child.throughput = rs.throughput * f;
+                    } else {
+                        if (pdf < 1e-6f) {
+                            integrator::RecordSample(ps, L);
+                            if (!ps.converged &&
+                                integrator::IsConverged(ps, kRelThresh, kMinSamples))
+                                ps.converged = true;
+                            continue;
+                        }
+
+                        float cos_theta = std::max(
+                            0.0f,
+                            static_cast<float>(core::Dot(wi, rec.normal))
+                        );
+
+                        child.throughput = rs.throughput * f * cos_theta / pdf;
+                    }
+
+                    // Russian roulette for path termination
                     if (child.depth > 5) {
                         double p = std::max({
                             child.throughput.x(),

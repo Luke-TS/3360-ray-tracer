@@ -61,12 +61,17 @@ bool Lambertian::Sample(
     float& pdf,
     core::Color& f
 ) const {
+    // Generate cosine-weighted direction in hemisphere
     wi = core::RandomCosineDirection(rec.normal);
+    
+    // Check if it's above the surface
+    if (core::Dot(wi, rec.normal) <= 0)
+        return false;
+    
     pdf = Pdf(rec, wi, wo);
     f = Eval(rec, wi, wo);
     return true;
 }
-
 
 // ---------------- Metal ----------------
 
@@ -116,17 +121,24 @@ bool Metal::Sample(
     float& pdf,
     core::Color& f
 ) const {
+    // Reflect wo (which points toward camera) to get wi
     wi = core::Reflect(-wo, rec.normal);
     wi += fuzz_ * core::RandomUnitVector();
+    wi = core::Normalize(wi); 
 
     if (core::Dot(wi, rec.normal) <= 0)
         return false;
 
-    pdf = 1.0f;    // handled as delta
+    // For delta distributions, we encode the BSDF/pdf in f
+    // The rendering equation's cos(theta)/pdf cancels out
+    pdf = 1.0f;
+    
+    // For specular materials: f = albedo * cos(theta) / pdf
+    // Since pdf = 1 and we want cos to cancel in renderer, we include it here
     f = albedo_;
+    
     return true;
 }
-
 
 // ---------------- Dielectric ----------------
 
@@ -185,22 +197,60 @@ bool Dielectric::Sample(
     core::Vec3& wi,
     float& pdf,
     core::Color& f
-) const {
-    f = core::Color(1.0, 1.0, 1.0);
-    pdf = 1.0f;
+) const 
+{
+    // BSDF conventions:
+    // wo = outgoing direction (toward camera)
+    // wi = incoming direction (sampled)
+    
+    core::Vec3 n = rec.normal;
+    bool entering = rec.front_face;
 
-    double eta = rec.front_face ? (1.0 / ref_idx_) : ref_idx_;
-    core::Vec3 unit_wo = core::Normalize(wo);
+    double eta_i = 1.0;
+    double eta_t = ref_idx_;
 
-    double cos_theta = std::fmin(core::Dot(-unit_wo, rec.normal), 1.0);
-    double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
+    if (!entering)
+        std::swap(eta_i, eta_t);
 
-    bool cannot_refract = eta * sin_theta > 1.0;
+    double eta = eta_i / eta_t;
 
-    if (cannot_refract || core::RandomDouble() < Reflectance(cos_theta, eta))
-        wi = core::Reflect(-unit_wo, rec.normal);
-    else
-        wi = core::Refract(-unit_wo, rec.normal, eta);
+    // incident direction IN BSDF space is -wo
+    core::Vec3 wi_incident = -core::Normalize(wo);
+
+    double cos_theta_i = core::Dot(wi_incident, n);
+    cos_theta_i = std::clamp(cos_theta_i, -1.0, 1.0);
+
+    double sin_theta_i = std::sqrt(std::max(0.0, 1.0 - cos_theta_i * cos_theta_i));
+    double sin_theta_t = eta * sin_theta_i;
+
+    bool total_internal_reflection = sin_theta_t >= 1.0;
+
+    pdf = 1.0f;  // delta distribution → pdf = 1
+
+    if (total_internal_reflection) {
+        // perfect reflection
+        wi = core::Reflect(wi_incident, n);
+        f = core::Color(1.0, 1.0, 1.0);  // scale not needed; handled by MIS
+        return true;
+    }
+
+    // Fresnel reflectance
+    double cos_theta_t = std::sqrt(std::max(0.0, 1.0 - sin_theta_t * sin_theta_t));
+    double Fr = Reflectance(std::abs(cos_theta_i), ref_idx_);  
+
+    if (core::RandomDouble() < Fr) {
+        // reflection branch
+        wi = core::Reflect(wi_incident, n);
+        f = core::Color(1.0, 1.0, 1.0);
+        return true;
+    }
+
+    // refraction branch
+    wi = core::Refract(wi_incident, n, eta);
+
+    // transmission BSDF includes Jacobian
+    double factor = (eta * eta);
+    f = core::Color(factor, factor, factor);
 
     return true;
 }
