@@ -188,7 +188,7 @@ int main(int argc, char** argv) {
     cam.initialize();
 
     Scene world;
-    switch(1) {
+    switch(4) {
         case 1: spheres(world); break;
         case 2: checkered_spheres(world); break;
         case 3: earth(world); break;

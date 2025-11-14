@@ -56,6 +56,8 @@ private:
 /*
 * metal objects scatter rays using mirrored reflection
 *
+* also refered to as specular materials
+*
 * a random unit vector is added to the reflected ray, scaled by fuzz
 * fuzz controls how 'polished' the metal appears
 * fuzz == 0 --> perfect reflections (mirror)

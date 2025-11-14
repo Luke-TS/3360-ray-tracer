@@ -24,19 +24,23 @@ public:
         const camera&     cam,
         RayIntegrator&    integrator,
         int               max_depth        = 10,
-        int               samples_per_pixel= 16,
+        int               max_samples= 128,
         int               batch_size       = 8192
     )
         : world(world)
         , cam(cam)
         , integrator(integrator)
         , max_depth(max_depth)
-        , spp(samples_per_pixel)
+        , max_ssp(max_samples)
         , batch_size(batch_size)
     {}
 
-    // Render to std::cout as PPM (like your old renderer)
+    // main wavefront rendering loop
     void render() {
+        // adaptive sampling parameters
+        const float adaptive_rel_thesh = 0.06; // per channel
+        const int   minimum_samples = 16;      // prevent early termination
+
         const int width  = cam.get_image_width();
         const int height = cam.get_image_height();
         const int npix   = width * height;
@@ -49,21 +53,21 @@ public:
         ray_queue.reserve(batch_size);
         next_ray_queue.reserve(batch_size);
 
-        // Outer loop: samples-per-pixel (anti-aliasing)
-        for (int s = 0; s < spp; ++s) {
+        // loop up to maximum number of samples
+        for (int s = 0; s < max_ssp; ++s) {
 
-            // 1. Generate primary rays for all pixels for this sample
             ray_queue.clear();
 
+            // generate samples for non-convergent pixels
             for (int y = 0; y < height; ++y) {
                 for (int x = 0; x < width; ++x) {
                     int idx = y * width + x;
+                    PixelState& ps = pixels[idx];
 
-                    // get random ray from camera
-                    ray r = cam.get_ray(x, y);
+                    if(ps.converged) continue;
 
                     RayState rs;
-                    rs.r           = r;
+                    rs.r           = cam.get_ray(x, y);
                     rs.pixel_index = idx;
                     rs.depth       = 0;
                     rs.throughput  = color(1,1,1);
@@ -71,8 +75,10 @@ public:
                     ray_queue.push_back(rs);
                 }
             }
+            std::clog << "Sample " << s << " ray_queue size = " << ray_queue.size() << "\n";
 
-            // 2. Wavefront loop — process all bounces for this sample
+
+            // process samples for non-convergent pixels
             while (!ray_queue.empty()) {
                 size_t offset = 0;
 
@@ -93,53 +99,93 @@ public:
                     std::vector<hit_record> hits;
                     integrator.intersect_batch(batch_rays, hits);
 
-                    // Process results on CPU
-
-                    // temporary: one thread-local next-ray queue per thread
+                    // create local vectors for each thread
                     int thread_count = omp_get_max_threads();
                     std::vector<std::vector<RayState>> thread_local_queues(thread_count);
 
-
+                    // process ray intersections in parallel
                     #pragma omp parallel for schedule(dynamic)
                     for (int i = 0; i < (int)count; i++) {
                         int tid = omp_get_thread_num();
 
-                        RayState& rs      = ray_queue[offset + i];
-                        PixelState& ps    = pixels[rs.pixel_index];
+                        RayState rs      = ray_queue[offset + i];   // Make local copy (safer)
+                        PixelState& ps   = pixels[rs.pixel_index];
                         const hit_record& rec = hits[i];
 
                         const ray& r = batch_rays[i];
 
-                        // ray doesn't hit or reaches maximum depth
-                        if (!rec.hit || rs.depth >= max_depth) {
-                            color L = rs.throughput * background(r);
-                            ps.sum += L;
+                        // --------------------------------------------
+                        // ACCUMULATE INTO A LOCAL VARIABLE PER PATH
+                        // --------------------------------------------
+                        color path_L = color(0,0,0);
 
-                            ps.samples++; // terminate
+                        // --------------------------------------------
+                        // 1. Termination by miss or max depth
+                        // --------------------------------------------
+                        if (!rec.hit || rs.depth >= max_depth) {
+                            path_L += rs.throughput * background(r);
+
+                            // record sample exactly once
+                            record_sample(ps, path_L);
+
+                            // convergence check
+                            if (!ps.converged &&
+                                is_converged(ps, adaptive_rel_thesh, minimum_samples))
+                                ps.converged = true;
+
                             continue;
                         }
 
-                        // Emitters ALWAYS contribute (just like in get_pixel)
+                        // --------------------------------------------
+                        // 2. Emissive material hit (non-scattering)
+                        // --------------------------------------------
                         color emitted = rec.mat->emitted(rec.u, rec.v, rec.p);
-                        color L = rs.throughput * emitted;
-                        ps.sum += L;
+                        if (!emitted.near_zero()) {
+                            path_L += rs.throughput * emitted;
 
-                        // check for scattered ray
+                            // record and test
+                            record_sample(ps, path_L);
+
+                            if (!ps.converged &&
+                                is_converged(ps, adaptive_rel_thesh, minimum_samples))
+                                ps.converged = true;
+
+                            continue;
+                        }
+
+                        // --------------------------------------------
+                        // 3. Scatterable material
+                        // --------------------------------------------
                         ray   scattered;
                         color attenuation;
+
                         if (!rec.mat->scatter(r, rec, attenuation, scattered)) {
-                            ps.samples++; // terminate
+                            // No scattering → emissive-only material without emission (rare case)
+                            // Path contributes nothing more, but still ends
+                            record_sample(ps, path_L);
+
+                            if (!ps.converged &&
+                                is_converged(ps, adaptive_rel_thesh, minimum_samples))
+                                ps.converged = true;
+
                             continue;
                         }
 
-                        // scattered ray exists --> generate child ray
+                        // --------------------------------------------
+                        // 4. Spawn child ray ONLY if pixel not converged
+                        // --------------------------------------------
+                        if (ps.converged)
+                            continue;
+
                         RayState child;
                         child.r           = scattered;
-                        child.pixel_index = rs.pixel_index;              // same pixel index
-                        child.depth       = rs.depth + 1;                // increment depth
-                        child.throughput  = rs.throughput * attenuation; // attenuate throughput
+                        child.pixel_index = rs.pixel_index;
+                        child.depth       = rs.depth + 1;
+                        child.throughput  = rs.throughput * attenuation;
 
-                        // russian roulette
+                        // --------------------------------------------
+                        // 5. russian roulette termination
+                        // --------------------------------------------
                         if (child.depth > 5) {
                             double p = std::max({
                                 child.throughput.x(),
@@ -147,13 +193,24 @@ public:
                                 child.throughput.z()
                             });
                             p = std::clamp(p, 0.1, 0.95);
+
                             if (random_double() > p) {
-                                ps.samples++; // terminate
+                                // terminate path; record + check
+                                record_sample(ps, path_L);
+
+                                if (!ps.converged &&
+                                    is_converged(ps, adaptive_rel_thesh, minimum_samples))
+                                    ps.converged = true;
+
                                 continue;
-                            } 
+                            }
+
                             child.throughput /= p;
                         }
 
+                        // --------------------------------------------
+                        // 6. Push child ray
+                        // --------------------------------------------
                         thread_local_queues[tid].push_back(child);
                     }
 
@@ -173,12 +230,9 @@ public:
                 ray_queue.swap(next_ray_queue);
                 next_ray_queue.clear();
             }
-
-            std::clog << "\rSample " << (s+1) << "/" << spp << std::flush;
         }
 
-
-        // 3. Resolve pixel states into framebuffer (average, no gamma yet)
+        // resolve pixel states
         for (int i = 0; i < npix; i++) {
             if (pixels[i].samples > 0)
                 framebuffer[i] = pixels[i].sum / (float)pixels[i].samples;
@@ -186,7 +240,7 @@ public:
                 framebuffer[i] = color(0,0,0);
         }
 
-        // 4. Output PPM
+        // output to PPM
         std::cout << "P3\n" << width << ' ' << height << "\n255\n";
 
         for (int j = 0; j < height; ++j) {
@@ -202,7 +256,7 @@ private:
     const camera&  cam;
     RayIntegrator& integrator;
     int            max_depth;
-    int            spp;
+    int            max_ssp;
     int            batch_size;
 
     static color background(const ray& r) {
@@ -210,7 +264,7 @@ private:
         vec3 unit_direction = unit_vector(r.direction());
         auto t = 0.5 * (unit_direction.y() + 1.0);
         return (1.0 - t) * color(1.0, 1.0, 1.0)
-             + t         * color(0.5, 0.7, 1.0);
+        + t         * color(0.5, 0.7, 1.0);
     }
 };
 
