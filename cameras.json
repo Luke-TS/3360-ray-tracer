@@ -1,0 +1,58 @@
+{
+  "default": {
+    "aspectRatio": 1.777,
+    "imageWidth": 1500,
+    "samplesPerPixel": 150,
+    "maxDepth": 50,
+
+    "vfov": 40.0,
+    "lookfrom": [13, 2, 3],
+    "lookat": [0, 0, 0],
+    "vup": [0, 1, 0]
+  },
+
+  "cornell": {
+    "aspectRatio": 1.5,
+    "imageWidth": 600,
+    "samplesPerPixel": 100,
+    "maxDepth": 20,
+
+    "vfov": 40.0,
+    "lookfrom": [5.0, 5.0, -3.6],
+    "lookat": [5.0, 5.0, 5.0],
+    "vup": [0, 1, 0],
+
+    "defocusAngle": 0.0,
+    "focusDist": 9.0
+  },
+
+  "cornell_wide": {
+    "aspectRatio": 1.5,
+    "imageWidth": 600,
+    "samplesPerPixel": 200,
+    "maxDepth": 100,
+
+    "vfov": 55.0,
+    "lookfrom": [5.0, 6.0, -6.0],
+    "lookat": [5.0, 5.0, 5.0],
+    "vup": [0, 1, 0],
+
+    "defocusAngle": 0.0,
+    "focusDist": 11.0
+  },
+
+  "wide": {
+    "aspectRatio": 2.0,
+    "imageWidth": 1200,
+    "samplesPerPixel": 50,
+    "maxDepth": 8,
+
+    "vfov": 85.0,
+    "lookfrom": [0, 1, 5],
+    "lookat": [0, 1, 0],
+    "vup": [0, 1, 0],
+
+    "defocusAngle": 0.0,
+    "focusDist": 5.0
+  }
+}

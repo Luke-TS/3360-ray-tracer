@@ -1,10 +1,13 @@
 #pragma once
 
-#include "bvh.h"
-#include "vec3.h"
+#include "geom/bvh.h"
+#include "core/vec3.h"
+
+namespace rt {
+
 struct BvhNodeGPU {
-    Vec3 bbox_min;
-    Vec3 bbox_max;
+    core::Vec3 bbox_min;
+    core::Vec3 bbox_max;
 
     int left_or_first; // stores left child index, or primative index
     int count; // number of primatives (internal node has 0)
@@ -20,7 +23,7 @@ struct PrimativeRef {
 * flat_nodes contains bvh_node_GPU struct containing bbox information and child node or primative information
 * flat_prims containts primitive_ref struct which contains an enum type (triangle, square, circle, etc) and the object index
 */
-inline int flatten_bvh(const BvhNode* node,
+inline int flatten_bvh(const geom::BvhNode* node,
                 std::vector<BvhNodeGPU>& flat_nodes,
                 std::vector<PrimativeRef>& flat_prims)
 {
@@ -28,8 +31,8 @@ inline int flatten_bvh(const BvhNode* node,
     flat_nodes.push_back({}); // placeholder
 
     BvhNodeGPU gpu_node;
-    gpu_node.bbox_min = node->bounding_box().min();
-    gpu_node.bbox_max = node->bounding_box().max();
+    gpu_node.bbox_min = node->BoundingBox().min();
+    gpu_node.bbox_max = node->BoundingBox().max();
 
     if (!node->primitives.empty()) {
         // Leaf
@@ -38,14 +41,14 @@ inline int flatten_bvh(const BvhNode* node,
 
         for (auto& obj : node->primitives) {
             PrimativeRef ref;
-            ref.type = obj->type_id(); // you’ll need to define this
-            ref.index = obj->object_index(); // same
+            ref.type = obj->TypeId(); // you’ll need to define this
+            ref.index = obj->ObjectIndex(); // same
             flat_prims.push_back(ref);
         }
     } else {
         // Internal
-        auto* left_bvh  = static_cast<BvhNode*>(node->left.get());
-        auto* right_bvh = static_cast<BvhNode*>(node->right.get());
+        auto* left_bvh  = static_cast<geom::BvhNode*>(node->left.get());
+        auto* right_bvh = static_cast<geom::BvhNode*>(node->right.get());
 
         int left_index  = flatten_bvh(left_bvh, flat_nodes, flat_prims);
         int right_index = flatten_bvh(right_bvh, flat_nodes, flat_prims);
@@ -56,3 +59,4 @@ inline int flatten_bvh(const BvhNode* node,
     flat_nodes[current_index] = gpu_node;
     return current_index;
 }
+} // namespace rt
