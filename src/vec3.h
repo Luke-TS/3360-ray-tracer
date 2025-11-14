@@ -151,4 +151,30 @@ inline vec3 random_in_unit_disk() {
     }
 }
 
+inline vec3 normalize(const vec3& v) {
+    double len = v.length();
+    if (len == 0.0)
+        return vec3(0,0,0);
+    return v / len;
+}
 
+inline vec3 random_cosine_direction(const vec3& normal) {
+    // Sample r1, r2 uniformly
+    double r1 = random_double();
+    double r2 = random_double();
+
+    double phi = 2 * pi * r1;
+    double r  = sqrt(r2);
+    double x  = r * cos(phi);
+    double y  = r * sin(phi);
+    double z  = sqrt(1 - r2);  // NOTE: this produces cos(θ)-weighted distribution
+
+    // (x, y, z) is in local coordinates where +Z is the surface normal.
+    // Build an ONB (orthonormal basis) to rotate it into world space.
+    vec3 w = unit_vector(normal);
+    vec3 a = (fabs(w.x()) > 0.9) ? vec3(0,1,0) : vec3(1,0,0);
+    vec3 v = unit_vector(cross(w, a));
+    vec3 u = cross(v, w);
+
+    return normalize(x * u + y * v + z * w);
+}

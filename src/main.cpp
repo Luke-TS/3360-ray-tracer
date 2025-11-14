@@ -48,33 +48,39 @@ void cornell_box(Scene& world_root) {
     auto red   = make_shared<lambertian>(color(.65, .05, .05));
     auto white = make_shared<lambertian>(color(.73, .73, .73));
     auto green = make_shared<lambertian>(color(.12, .45, .15));
-    auto light = make_shared<diffuse_light>(color(8, 8, 8));
+    auto light = make_shared<diffuse_light>(color(15, 15, 15));  // Brighter light
 
-    // We'll scale 555 → 10
-    // (so 1 world unit ≈ 55.5 Cornell units)
-    const double box_size = 10.0;
-    const double half_box = box_size / 2.0;
+    // Standard Cornell Box scaling (10×10×10 world units)
+    const double S = 10.0;       // side length
+    const double eps = 0.01;     // small offset to avoid z-fighting
 
-    // Walls
-    world.add(make_shared<yz_rect>(0, box_size, 0, box_size,  box_size, green)); // Right wall
-    world.add(make_shared<yz_rect>(0, box_size, 0, box_size,  0, red));         // Left wall
-    world.add(make_shared<xz_rect>(3.8, 6.2, 3.8, 6.2, box_size - 0.01, light)); // Ceiling light
-    world.add(make_shared<xz_rect>(0, box_size, 0, box_size,  0, white));       // Floor
-    world.add(make_shared<xz_rect>(0, box_size, 0, box_size,  box_size, white)); // Ceiling
-    world.add(make_shared<xy_rect>(0, box_size, 0, box_size,  box_size, white)); // Back wall
+    // --- Walls ---
+    world.add(make_shared<yz_rect>(0, S, 0, S,  S, green));   // Right wall
+    world.add(make_shared<yz_rect>(0, S, 0, S,  0, red));     // Left wall
+    world.add(make_shared<xz_rect>(0, S, 0, S,  0, white));   // Floor
+    world.add(make_shared<xz_rect>(0, S, 0, S,  S, white));   // Ceiling
+    world.add(make_shared<xy_rect>(0, S, 0, S,  S, white));   // Back wall
 
-    // Optional: add test spheres
-    auto glass = make_shared<dielectric>(1.5);
-    auto metal_surface = make_shared<metal>(color(0.8, 0.8, 0.9), 0.05);
+    // --- Light in ceiling ---
+    // Standard proportion: light is ~1/3 width of box
+    const double L0 = 3.0;
+    const double L1 = 7.0;
+    world.add(make_shared<xz_rect>(L0, L1, L0, L1, S - eps, light));  
+
+    // --- Objects: Use spheres or blocks ---
+    // Spheres version:
+    auto glass  = make_shared<dielectric>(1.5);
+    auto metal_surface = make_shared<metal>(color(0.85, 0.85, 0.95), 0.03);
     auto diffuse = make_shared<lambertian>(color(0.8, 0.3, 0.1));
 
-    world.add(make_shared<sphere>(point3(3.0, 1.0, 4.0), 1.0, glass));
-    world.add(make_shared<sphere>(point3(7.0, 1.0, 6.0), 1.0, metal_surface));
-    world.add(make_shared<sphere>(point3(5.0, 0.5, 2.0), 0.5, diffuse));
+    world.add(make_shared<sphere>(point3(3.2, 1.0, 7.0), 1.0, diffuse));
+    world.add(make_shared<sphere>(point3(7.0, 1.0, 4.0), 1.0, metal_surface));
+    world.add(make_shared<sphere>(point3(5.0, 1.0, 2.5), 1.0, glass));
 
-    // Add to world root
+    // Add BVH
     world_root.add(make_shared<bvh_node>(world.objects, 0, world.objects.size()));
 }
+
 
 void earth(Scene& world) {
     auto earth_texture = make_shared<image_texture>("earthmap.jpg");
