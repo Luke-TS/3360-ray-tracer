@@ -3,7 +3,6 @@
 #include "hittable.h"
 #include "ray_integrator.h"
 #include "scene.h"      // hit_record, Scene::hit()
-#include "material.h"   // safe now — for mat_ptr
 #include <omp.h>
 
 class CPURayIntegrator : public RayIntegrator {
@@ -11,7 +10,7 @@ public:
     CPURayIntegrator(const Scene* world)
         : world(world) {}
 
-    void intersect_batch( const std::vector<ray>& rays, std::vector<hit_record>& hits ) const override {
+    void intersect_batch( const std::vector<Ray>& rays, std::vector<HitRecord>& hits ) const override {
         hits.resize(rays.size());
 
         float t_min = 0.001f;
@@ -19,8 +18,8 @@ public:
 
         #pragma omp parallel for
         for (size_t i = 0; i < rays.size(); ++i) {
-            hit_record rec; // your existing type
-            bool ok = world->hit(rays[i], interval(t_min, t_max), rec);
+            HitRecord rec; // your existing type
+            bool ok = world->hit(rays[i], Interval(t_min, t_max), rec);
 
             rec.hit = ok;
 

@@ -2,23 +2,23 @@
 
 #include "main.h"
 #include <algorithm>
-class interval {
+class Interval {
 public:
     double min, max;
 
-    interval() : min(+infinity), max(-infinity) {}
+    Interval() : min(+infinity), max(-infinity) {}
 
-    interval(double min, double max) : min(min), max(max)  {}
+    Interval(double min, double max) : min(min), max(max)  {}
 
     // create interval overlapping two smaller intervals
-    interval(const interval& a, const interval& b) {
+    Interval(const Interval& a, const Interval& b) {
         min = std::min(a.min, b.min);
         max = std::max(a.max, b.max);
     }
 
-    interval expand(double delta) const {
+    Interval expand(double delta) const {
         auto pad = delta / 2;
-        return interval(min + pad, max + pad);
+        return Interval(min + pad, max + pad);
     }
 
     double size() const {
@@ -39,8 +39,8 @@ public:
         return x;
     }
 
-    static const interval empty, universe;
+    static const Interval empty, universe;
 };
 
-const interval interval::empty = interval(+infinity, -infinity);
-const interval interval::universe = interval(-infinity, +infinity);
+const Interval Interval::empty = Interval(+infinity, -infinity);
+const Interval Interval::universe = Interval(-infinity, +infinity);

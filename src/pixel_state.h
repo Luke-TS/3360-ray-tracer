@@ -7,15 +7,15 @@
 // keeps track of pixel state for wavefront renderer
 // stoes data necessary for adaptive sampling logic
 struct PixelState {
-    color sum = color(0,0,0);
-    color mean = color(0,0,0); // running average
-    color m2 = color(0,0,0);   // sum of squared differences (for variance)
+    Color sum = Color(0,0,0);
+    Color mean = Color(0,0,0); // running average
+    Color m2 = Color(0,0,0);   // sum of squared differences (for variance)
     int   samples = 0;
     bool  converged = false;
 };
 
 // called whenever ray is terminated
-inline void record_sample(PixelState& ps, const color& sample) {
+inline void record_sample(PixelState& ps, const Color& sample) {
     ps.samples++;
 
     // welfords algorithm for updating variance efficiently
@@ -34,8 +34,8 @@ inline void record_sample(PixelState& ps, const color& sample) {
     ps.sum += sample;
 }
 
-inline color variance(const PixelState& ps) {
-    color var(0,0,0);
+inline Color variance(const PixelState& ps) {
+    Color var(0,0,0);
     if( ps.samples > 1 ) {
         for(int c = 0; c < 3; ++c) {
             var[c] = ps.m2[c] / (ps.samples - 1);
@@ -50,7 +50,7 @@ inline color variance(const PixelState& ps) {
 inline bool is_converged(PixelState& ps, double rel_threshold, int min_spp) {
     if( ps.samples < min_spp ) return false;
 
-    color var = variance(ps);
+    Color var = variance(ps);
     bool ok = true;
 
     for(int c= 0; c < 3; ++c) {

@@ -7,22 +7,22 @@
 
 #include <algorithm>
 
-class bvh_node : public Hittable {
+class BvhNode : public Hittable {
   public:
     std::vector<std::shared_ptr<Hittable>> primitives;
     shared_ptr<Hittable> left;
     shared_ptr<Hittable> right;
 
-    bvh_node(triangle_mesh& mesh) : bvh_node(mesh.tris) {}
+    BvhNode(TriangleMesh& mesh) : BvhNode(mesh.tris) {}
 
-    bvh_node(Scene& list) : bvh_node(list.objects, 0, list.objects.size()) {
+    BvhNode(Scene& list) : BvhNode(list.objects, 0, list.objects.size()) {
         // There's a C++ subtlety here. This constructor (without span indices) creates an
         // implicit copy of the hittable list, which we will modify. The lifetime of the copied
         // list only extends until this constructor exits. That's OK, because we only need to
         // persist the resulting bounding volume hierarchy.
     }
 
-    bvh_node(std::vector<shared_ptr<Hittable>>& objects, size_t start, size_t end) {
+    BvhNode(std::vector<shared_ptr<Hittable>>& objects, size_t start, size_t end) {
         auto axis = random_int(0, 2);
         auto comparator = (axis == 0) ? box_x_compare
             : (axis == 1) ? box_y_compare
@@ -42,39 +42,39 @@ class bvh_node : public Hittable {
             std::sort(objects.begin() + start, objects.begin() + end, comparator);
 
             auto mid = start + object_span / 2;
-            left  = std::make_shared<bvh_node>(objects, start, mid);
-            right = std::make_shared<bvh_node>(objects, mid, end);
+            left  = std::make_shared<BvhNode>(objects, start, mid);
+            right = std::make_shared<BvhNode>(objects, mid, end);
         }
 
         // compute bounding box
         if (!primitives.empty()) {
             // leaf: merge all prim AABBs
-            aabb temp_box;
+            Aabb temp_box;
             bool first_box = true;
             for (auto& obj : primitives) {
-                aabb b = obj->bounding_box();
-                temp_box = first_box ? b : aabb(temp_box, b);
+                Aabb b = obj->bounding_box();
+                temp_box = first_box ? b : Aabb(temp_box, b);
                 first_box = false;
             }
             bbox = temp_box;
         } else {
-            bbox = aabb(left->bounding_box(), right->bounding_box());
+            bbox = Aabb(left->bounding_box(), right->bounding_box());
         }
     }
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
         if (!bbox.hit(r, ray_t)) {
             return false;
         }
 
         bool hit_anything = false;
-        hit_record temp_rec;
+        HitRecord temp_rec;
         auto closest_so_far = ray_t.max;
 
         // check for leaf node
         if (!primitives.empty()) {
             for (auto& obj : primitives) {
-                if (obj->hit(r, interval(ray_t.min, closest_so_far), temp_rec)) {
+                if (obj->hit(r, Interval(ray_t.min, closest_so_far), temp_rec)) {
                     hit_anything = true;
                     closest_so_far = temp_rec.t;
                     rec = temp_rec;
@@ -85,12 +85,12 @@ class bvh_node : public Hittable {
 
         // internal node
         bool hit_left = left->hit(r, ray_t, rec);
-        bool hit_right = right->hit(r, interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
+        bool hit_right = right->hit(r, Interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
 
         return hit_left || hit_right;
     }
 
-    aabb bounding_box() const override { return bbox; }
+    Aabb bounding_box() const override { return bbox; }
 
     // ignore: functions only used by primitives
     virtual int type_id() const override { return -1; }
@@ -98,7 +98,7 @@ class bvh_node : public Hittable {
     virtual void set_object_index(int i) override {}
 
   private:
-    aabb bbox;
+    Aabb bbox;
 
     static bool box_compare(
         const shared_ptr<Hittable> a, const shared_ptr<Hittable> b, int axis_index

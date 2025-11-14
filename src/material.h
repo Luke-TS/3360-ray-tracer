@@ -9,12 +9,12 @@
 /**
  * abstract class for materials defining how rays scatter when intersecting
  */
-class material {
+class Material {
 public:
-    virtual ~material() = default;
+    virtual ~Material() = default;
 
     virtual bool scatter(
-        const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
+        const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered
     ) const {
         return false;
     }
@@ -24,30 +24,30 @@ public:
     // Next-event estimation / MIS interface:
 
     // Evaluate BSDF f_r(wi,wo)
-    virtual color eval(
-        const hit_record& rec,
-        const vec3& wi,
-        const vec3& wo
+    virtual Color eval(
+        const HitRecord& rec,
+        const Vec3& wi,
+        const Vec3& wo
     ) const = 0;
 
     // PDF of sampling wi
     virtual float pdf(
-        const hit_record& rec,
-        const vec3& wi,
-        const vec3& wo
+        const HitRecord& rec,
+        const Vec3& wi,
+        const Vec3& wo
     ) const = 0;
 
     // Sample a direction wi according to BSDF
     virtual bool sample(
-        const hit_record& rec,
-        const vec3& wo,
-        vec3& wi,
+        const HitRecord& rec,
+        const Vec3& wo,
+        Vec3& wi,
         float& pdf,
-        color& f
+        Color& f
     ) const = 0;
 
-    virtual color emitted(double u, double v, const point3& p) const {
-        return color(0,0,0);
+    virtual Color emitted(double u, double v, const Point3& p) const {
+        return Color(0,0,0);
     };
 };
 
@@ -60,19 +60,19 @@ public:
 * about a unit normal, then forming the ray from that point originating
 * at the point of intersection
 */
-class lambertian : public material {
+class lambertian : public Material {
 public:
-    lambertian(const color& albedo) : tex(make_shared<solid_color>(albedo)) {}
+    lambertian(const Color& albedo) : tex(make_shared<solid_color>(albedo)) {}
     lambertian(shared_ptr<texture> tex) : tex(tex) {}
 
-    bool scatter( const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered ) const override {
+    bool scatter( const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered ) const override {
         auto scatter_direction = rec.normal + random_unit_vector();
 
         // catch degenerate scatter direction
         if( scatter_direction.near_zero() )
             scatter_direction = rec.normal;
 
-        scattered = ray(rec.p, scatter_direction);
+        scattered = Ray(rec.p, scatter_direction);
         attenuation = tex->value(rec.u, rec.v, rec.p); 
         return true;
     }
@@ -80,21 +80,21 @@ public:
     // NEE / MIS interface
 
     // Evaluate BSDF
-    color eval(const hit_record& rec, const vec3& wi, const vec3& wo) const override {
-        if (dot(rec.normal, wi) <= 0) return color(0,0,0);
+    Color eval(const HitRecord& rec, const Vec3& wi, const Vec3& wo) const override {
+        if (dot(rec.normal, wi) <= 0) return Color(0,0,0);
 
-        color albedo = tex->value(rec.u, rec.v, rec.p);
+        Color albedo = tex->value(rec.u, rec.v, rec.p);
         return albedo / pi;
     }
 
     // PDF = cos(theta) / PI
-    float pdf(const hit_record& rec, const vec3& wi, const vec3& wo) const override {
+    float pdf(const HitRecord& rec, const Vec3& wi, const Vec3& wo) const override {
         float cosTheta = dot(rec.normal, wi);
         return (cosTheta <= 0) ? 0.0f : (cosTheta / pi);
     }
 
     // Sample according to cosine-weighted hemisphere
-    bool sample(const hit_record& rec, const vec3& wo, vec3& wi, float& pdf_val, color& f) const override {
+    bool sample(const HitRecord& rec, const Vec3& wo, Vec3& wi, float& pdf_val, Color& f) const override {
         wi = random_cosine_direction(rec.normal);
         pdf_val = pdf(rec, wi, wo);
         f = eval(rec, wi, wo);
@@ -116,29 +116,29 @@ private:
 * fuzz >  0 --> reflections slightly random, appears slightly blurred
 * fuzz == 1 --> rough metal, reflections heavily smeared
 */
-class metal : public material {
+class metal : public Material {
 public:
-    metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
+    metal(const Color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
 
-    bool scatter( const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered ) const override {
-        vec3 reflected = reflect(r_in.direction(), rec.normal);
+    bool scatter( const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered ) const override {
+        Vec3 reflected = reflect(r_in.direction(), rec.normal);
         reflected = reflected + (fuzz * random_unit_vector());
-        scattered = ray(rec.p, reflected);
+        scattered = Ray(rec.p, reflected);
         attenuation = albedo;
         return (dot(scattered.direction(), rec.normal) > 0);
     }
 
     bool is_specular() const override { return true; }
 
-    color eval(const hit_record&, const vec3&, const vec3&) const override {
-        return color(0,0,0); // delta distribution
+    Color eval(const HitRecord&, const Vec3&, const Vec3&) const override {
+        return Color(0,0,0); // delta distribution
     }
 
-    float pdf(const hit_record&, const vec3&, const vec3&) const override {
+    float pdf(const HitRecord&, const Vec3&, const Vec3&) const override {
         return 0.0f; // delta
     }
 
-    bool sample(const hit_record& rec, const vec3& wo, vec3& wi, float& pdf_val, color& f) const override {
+    bool sample(const HitRecord& rec, const Vec3& wo, Vec3& wi, float& pdf_val, Color& f) const override {
         wi = reflect(-wo, rec.normal);
         wi += fuzz * random_unit_vector();
 
@@ -150,60 +150,60 @@ public:
     }
 
 private:
-    color albedo;
+    Color albedo;
     double fuzz;
 };
 
-class dielectric : public material {
+class dielectric : public Material {
 public:
     dielectric(double refraction_index) : ref_idx(refraction_index) {}
 
-    bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override {
-        attenuation = color(1.0, 1.0, 1.0);
+    bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered) const override {
+        attenuation = Color(1.0, 1.0, 1.0);
         double ri = rec.front_face ? (1.0/ref_idx) : ref_idx;
 
-        vec3 unit_direction = unit_vector(r_in.direction());
+        Vec3 unit_direction = unit_vector(r_in.direction());
 
         double cos_theta = std::fmin(dot(-unit_direction, rec.normal), 1.0);
         double sin_theta = std::sqrt(1.0 - cos_theta*cos_theta);
 
         bool cannot_refract = ri * sin_theta > 1.0;
-        vec3 direction;
+        Vec3 direction;
 
         if (cannot_refract || reflectance(cos_theta, ri) > random_double())
             direction = reflect(unit_direction, rec.normal);
         else
             direction = refract(unit_direction, rec.normal, ri);
 
-        scattered = ray(rec.p, direction);
+        scattered = Ray(rec.p, direction);
         return true;
     }
 
     bool is_specular() const override { return true; }
 
-    color eval(
-        const hit_record&, const vec3&, const vec3&
-    ) const override { return color(0,0,0); }
+    Color eval(
+        const HitRecord&, const Vec3&, const Vec3&
+    ) const override { return Color(0,0,0); }
 
     float pdf(
-        const hit_record&, const vec3&, const vec3&
+        const HitRecord&, const Vec3&, const Vec3&
     ) const override { return 0.0f; }
 
     bool sample(
-        const hit_record& rec,
-        const vec3& wo,
-        vec3& wi,
+        const HitRecord& rec,
+        const Vec3& wo,
+        Vec3& wi,
         float& pdf_val,
-        color& f
+        Color& f
     ) const override {
 
         // Always white (glass does not tint light)
-        f = color(1,1,1);
+        f = Color(1,1,1);
         pdf_val = 1.0f;
 
         double eta = rec.front_face ? (1.0 / ref_idx) : ref_idx;
 
-        vec3 unit_wo = unit_vector(wo);
+        Vec3 unit_wo = unit_vector(wo);
         double cos_theta = fmin(dot(-unit_wo, rec.normal), 1.0);
         double sin_theta = sqrt(1.0 - cos_theta*cos_theta);
 
@@ -231,14 +231,14 @@ private:
     }
 };
 
-class diffuse_light : public material {
+class diffuse_light : public Material {
 public:
     diffuse_light(shared_ptr<texture> tex) : emit(tex) {}
-    diffuse_light(const color& c) : emit(make_shared<solid_color>(c)) {}
+    diffuse_light(const Color& c) : emit(make_shared<solid_color>(c)) {}
 
     // Emissive surfaces don't scatter; they just emit
     bool scatter(
-        const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
+        const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered
     ) const override {
         return false;
     }
@@ -246,16 +246,16 @@ public:
     bool is_specular() const override { return true; }
 
 
-    bool sample( const hit_record&, const vec3&, vec3&, float&, color& ) const override {
+    bool sample( const HitRecord&, const Vec3&, Vec3&, float&, Color& ) const override {
         return false; // no scattering
     }
 
-    float pdf( const hit_record&, const vec3&, const vec3&) const override { return 0.0f; }
+    float pdf( const HitRecord&, const Vec3&, const Vec3&) const override { return 0.0f; }
 
-    color eval( const hit_record&, const vec3&, const vec3&) const override { return color(0,0,0); }
+    Color eval( const HitRecord&, const Vec3&, const Vec3&) const override { return Color(0,0,0); }
 
     // Return emitted radiance (light) at hit point
-    color emitted(double u, double v, const point3& p) const override {
+    Color emitted(double u, double v, const Point3& p) const override {
         return emit->value(u, v, p);
     }
 

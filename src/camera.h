@@ -23,9 +23,9 @@ struct CameraConfig {
     int    max_depth    = 10;
 
     double vfov = 90.0;
-    vec3   lookfrom = point3(0,0,0);
-    vec3   lookat   = point3(0,0,-1);
-    vec3   vup      = point3(0,1,0);
+    Vec3   lookfrom = Point3(0,0,0);
+    Vec3   lookat   = Point3(0,0,-1);
+    Vec3   vup      = Point3(0,1,0);
 
     double defocus_angle = 0.0;
     double focus_dist    = 10.0;
@@ -68,9 +68,9 @@ public:
     int    samples_per_pixel = 10;
 
     double vfov = 90.0;
-    vec3   lookfrom = point3(0,0,0); // position of camera
-    vec3   lookat   = point3(0,0,-1); // direction of viewport/scene
-    vec3   vup      = point3(0,1,0); // vector pointing up from camera
+    Vec3   lookfrom = Point3(0,0,0); // position of camera
+    Vec3   lookat   = Point3(0,0,-1); // direction of viewport/scene
+    Vec3   vup      = Point3(0,1,0); // vector pointing up from camera
     
     double defocus_angle = 0;
     double focus_dist = 10;
@@ -109,8 +109,8 @@ public:
         v = cross(w, u); // up along viewport
 
         // vectors across horizontal and vertial viewport edges originating in top left of viewport
-        vec3 viewport_u = viewport_width * u;
-        vec3 viewport_v = viewport_height * -v;
+        Vec3 viewport_u = viewport_width * u;
+        Vec3 viewport_v = viewport_height * -v;
 
         // horizontal and vertical delta vectors from pixel to pixel
         pixel_delta_u = viewport_u / image_width;
@@ -125,7 +125,7 @@ public:
     }
 
     // get random ray at index (i, j)
-    virtual ray get_ray(int i, int j) const {
+    virtual Ray get_ray(int i, int j) const {
         auto offset = sample_square();
         auto pixel_sample = pixel00_loc
                             + ((i + offset.x()) * pixel_delta_u)
@@ -134,25 +134,25 @@ public:
         auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample();
         auto ray_direction = pixel_sample - ray_origin;
 
-        return ray(ray_origin, ray_direction);
+        return Ray(ray_origin, ray_direction);
     }
 
 
     // used to aquire pixel value
-    virtual color get_pixel(const ray& r, int depth, const Hittable& world) const {
+    virtual Color get_pixel(const Ray& r, int depth, const Hittable& world) const {
         if( depth <= 0 ) {
-            return color(0,0,0);
+            return Color(0,0,0);
         }
 
-        hit_record rec;
+        HitRecord rec;
 
         // shadow acne is caused by rounding errors resulting in intersection
         // points slightly inside or outside surfaces
         // use interval with t >= 0.001 to avoid repeat intersections
-        if(world.hit(r, interval(0.001, infinity), rec)) {
-            ray scattered;
-            color attenuation;
-            color emitted = rec.mat->emitted(rec.u, rec.v, rec.p);
+        if(world.hit(r, Interval(0.001, infinity), rec)) {
+            Ray scattered;
+            Color attenuation;
+            Color emitted = rec.mat->emitted(rec.u, rec.v, rec.p);
 
             if( rec.mat->scatter(r, rec, attenuation, scattered) ) {
                 return emitted + attenuation * get_pixel(scattered, depth-1, world);
@@ -162,9 +162,9 @@ public:
             }
         }
 
-        vec3 unit_direction = unit_vector(r.direction());
+        Vec3 unit_direction = unit_vector(r.direction());
         auto a = 0.5 * (unit_direction.y() + 1.0); // normalize y to 0.0 <= z <= 1.0
-        return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // white to blue gradient
+        return (1.0-a)*Color(1.0, 1.0, 1.0) + a*Color(0.5, 0.7, 1.0); // white to blue gradient
     }
 
     int get_image_height() const {
@@ -178,22 +178,22 @@ public:
 private:
     int    image_height;
     double pixel_samples_scale;
-    point3 center;
-    point3 pixel00_loc;
-    vec3 pixel_delta_u;
-    vec3 pixel_delta_v;
-    vec3 u, v, w; // camera basis vectors
-    vec3 defocus_disk_u;
-    vec3 defocus_disk_v;
+    Point3 center;
+    Point3 pixel00_loc;
+    Vec3 pixel_delta_u;
+    Vec3 pixel_delta_v;
+    Vec3 u, v, w; // camera basis vectors
+    Vec3 defocus_disk_u;
+    Vec3 defocus_disk_v;
 
 
-    point3 defocus_disk_sample() const {
+    Point3 defocus_disk_sample() const {
         auto p = random_in_unit_disk();
         return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
     }
 
-    vec3 sample_square() const {
-        return vec3(random_double() - 0.5, random_double() - 0.5, 0);
+    Vec3 sample_square() const {
+        return Vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
 };
@@ -208,27 +208,27 @@ class color_camera : public camera {
 // max_dist units = black
 class depth_camera : public camera {
 public:
-    virtual color get_pixel(const ray& r, int depth, const Hittable& world) const override {
+    virtual Color get_pixel(const Ray& r, int depth, const Hittable& world) const override {
         if( depth <= 0 ) {
-            return color(0,0,0);
+            return Color(0,0,0);
         }
 
-        hit_record rec;
-        ray r_norm = ray(r.origin(), unit_vector(r.direction()));
+        HitRecord rec;
+        Ray r_norm = Ray(r.origin(), unit_vector(r.direction()));
 
 
         // shadow acne is caused by rounding errors resulting in intersection
         // points slightly inside or outside surfaces
         // use interval with t >= 0.001 to avoid repeat intersections
-        if(world.hit(r_norm, interval(0.001, infinity), rec)) {
-            ray scattered;
-            color attenuation;
-            return color( rec.t < max_dist ? rec.t : 0,0,0);
+        if(world.hit(r_norm, Interval(0.001, infinity), rec)) {
+            Ray scattered;
+            Color attenuation;
+            return Color( rec.t < max_dist ? rec.t : 0,0,0);
         }
 
-        vec3 unit_direction = unit_vector(r.direction());
+        Vec3 unit_direction = unit_vector(r.direction());
         auto a = 0.5 * (unit_direction.y() + 1.0); // normalize y to 0.0 <= z <= 1.0
-        return color(0, 0, 0); // return black
+        return Color(0, 0, 0); // return black
     }
 private:
     int max_dist = 20;

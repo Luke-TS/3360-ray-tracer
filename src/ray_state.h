@@ -3,8 +3,8 @@
 #include "color.h"
 
 struct RayState {
-    ray   r;
+    Ray   r;
     int   pixel_index = 0;
     int   depth = 0;
-    color throughput = color(1,1,1);
+    Color throughput = Color(1,1,1);
 };

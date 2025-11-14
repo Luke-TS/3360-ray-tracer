@@ -1,23 +1,19 @@
 #pragma once
 
-#include <memory>
-
-// class containing hit information
-//#include "material.h"
 #include "aabb.h"
 #include "ray.h"
 #include "vec3.h"
 #include "interval.h"
 
-// to solve circular references betwixt material and hittable code
-class material;
+// to solve circular references between material and hittable code
+class Material;
 
-class hit_record {
+class HitRecord {
 public:
     bool hit;
-    point3 p; // hit point
-    vec3 normal; // normal vector
-    shared_ptr<material> mat;
+    Point3 p; // hit point
+    Vec3 normal; // normal vector
+    shared_ptr<Material> mat;
     double t; // time of hit
     bool front_face;
 
@@ -25,17 +21,17 @@ public:
     double u; 
     double v;
 
-    void set_face_normal(const ray& r, const vec3& outward_normal) {
+    void set_face_normal(const Ray& r, const Vec3& outward_normal) {
         front_face = dot(r.direction(), outward_normal) < 0;
         normal = front_face ? outward_normal : -outward_normal;
     }
 
-    hit_record() = default;
-    hit_record(const hit_record&) = default;
-    hit_record(hit_record&&) = default;
-    hit_record& operator=(const hit_record&) = default;   // <-- important
-    hit_record& operator=(hit_record&&) = default;        // <-- important
-    ~hit_record() = default;
+    HitRecord() = default;
+    HitRecord(const HitRecord&) = default;
+    HitRecord(HitRecord&&) = default;
+    HitRecord& operator=(const HitRecord&) = default;   // <-- important
+    HitRecord& operator=(HitRecord&&) = default;        // <-- important
+    ~HitRecord() = default;
 };
 
 enum HittableType {
@@ -44,14 +40,13 @@ enum HittableType {
     HITTABLE_SQUARE = 2,
 };;
 
-// class for hittable objects
 class Hittable {
 public:
     virtual ~Hittable() = default;
 
-    virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
+    virtual bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const = 0;
 
-    virtual aabb bounding_box() const = 0;
+    virtual Aabb bounding_box() const = 0;
 
     virtual int type_id() const = 0;
     virtual int object_index() const = 0;

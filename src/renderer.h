@@ -14,7 +14,7 @@ public:
         int height = cam.get_image_height();
         long total_samples = 0;
 
-        std::vector<color> framebuffer(width * height);
+        std::vector<Color> framebuffer(width * height);
 
         #pragma omp parallel for schedule(dynamic)
         for( int y = 0; y < height; y++ ) {
@@ -32,7 +32,7 @@ public:
 
             for( int x = 0; x < width; x++ ) {
                 // aquire pixel color using sampler
-                color pixel_color;
+                Color pixel_color;
                 int num_samples = sampler.sample_pixel(pixel_color, world, cam, x, y);
                 total_samples += num_samples;
 
