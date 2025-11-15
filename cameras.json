@@ -1,9 +1,9 @@
 {
   "default": {
     "aspectRatio": 1.777,
-    "imageWidth": 1500,
-    "samplesPerPixel": 150,
-    "maxDepth": 50,
+    "imageWidth": 800,
+    "samplesPerPixel": 85,
+    "maxDepth": 25,
 
     "vfov": 40.0,
     "lookfrom": [13, 2, 3],
@@ -28,9 +28,9 @@
 
   "cornell_wide": {
     "aspectRatio": 1.5,
-    "imageWidth": 600,
+    "imageWidth": 1000,
     "samplesPerPixel": 200,
-    "maxDepth": 100,
+    "maxDepth": 35,
 
     "vfov": 55.0,
     "lookfrom": [5.0, 6.0, -6.0],

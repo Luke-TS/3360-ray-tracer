@@ -19,8 +19,8 @@ namespace rt::geom {
 /// Node layout usable on both CPU and GPU
 struct BvhNodeGPU {
     Aabb     bbox;
-    uint32_t left;    // internal: index of left child; leaf: first primitive index
-    uint32_t right;   // internal: index of right child; leaf: primitive count
+    uint32_t left_pIdx;    // internal: index of left child; leaf: first primitive index
+    uint32_t right_pCnt;   // internal: index of right child; leaf: primitive count
     uint32_t isLeaf;  // 1 = leaf, 0 = internal
 };
 
@@ -91,8 +91,8 @@ class Bvh : public Hittable {
 
             if (node.isLeaf) {
                 // Leaf: test primitives
-                int first = static_cast<int>(node.left);
-                int count = static_cast<int>(node.right);
+                int first = static_cast<int>(node.left_pIdx);
+                int count = static_cast<int>(node.right_pCnt);
 
                 for (int i = 0; i < count; ++i) {
                     int prim_idx = prim_indices_[first + i];
@@ -105,8 +105,8 @@ class Bvh : public Hittable {
                 }
             } else {
                 // Internal: push children (push far first)
-                int left  = static_cast<int>(node.left);
-                int right = static_cast<int>(node.right);
+                int left  = static_cast<int>(node.left_pIdx);
+                int right = static_cast<int>(node.right_pCnt);
 
                 // Optional: order by which child is closer to the ray origin
                 // For now, just push right then left.
@@ -353,14 +353,14 @@ class Bvh : public Hittable {
 
         if (bnode.is_leaf()) {
             out.isLeaf = 1;
-            out.left   = static_cast<uint32_t>(bnode.firstPrim);
-            out.right  = static_cast<uint32_t>(bnode.primCount);
+            out.left_pIdx   = static_cast<uint32_t>(bnode.firstPrim);
+            out.right_pCnt  = static_cast<uint32_t>(bnode.primCount);
         } else {
             out.isLeaf = 0;
             int left_idx  = flatten(*bnode.left);
             int right_idx = flatten(*bnode.right);
-            out.left  = static_cast<uint32_t>(left_idx);
-            out.right = static_cast<uint32_t>(right_idx);
+            out.left_pIdx  = static_cast<uint32_t>(left_idx);
+            out.right_pCnt = static_cast<uint32_t>(right_idx);
         }
 
         return idx;
