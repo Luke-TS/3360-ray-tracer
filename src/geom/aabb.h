@@ -6,18 +6,16 @@
 
 namespace rt::geom {
 
-// Axis-Aligned Bounding Boxes
-// Box consisting of 3 intervals along the x, y, and z axis.
-// Used to create Bounding Volume Hierarchies.
 class Aabb {
 public:
     core::Interval x, y ,z;
 
     // intervals are empty by default
-    Aabb() {};
+    Aabb() {}
 
     // initialize intervals
-    Aabb(const core::Interval& x, const core::Interval& y, const core::Interval& z): x(x), y(y), z(z) {}
+    Aabb(const core::Interval& x, const core::Interval& y, const core::Interval& z)
+        : x(x), y(y), z(z) {}
 
     // create box from 2 points
     Aabb(const core::Point3& a, const core::Point3& b) {
@@ -33,6 +31,22 @@ public:
         z = core::Interval(a.z, b.z);
     }
 
+    // Expand an existing box to include a point
+    Aabb(const Aabb& box, const core::Vec3& p) {
+        x = core::Interval(
+            std::min(box.x.min_, p.x()),
+            std::max(box.x.max_, p.x())
+        );
+        y = core::Interval(
+            std::min(box.y.min_, p.y()),
+            std::max(box.y.max_, p.y())
+        );
+        z = core::Interval(
+            std::min(box.z.min_, p.z()),
+            std::max(box.z.max_, p.z())
+        );
+    }
+
     // 0:x 1:y 2:z
     const core::Interval& axis_interval(int n) const {
         if (n == 1) return y;
@@ -41,15 +55,41 @@ public:
     }
 
     core::Vec3 min() const {
-        return core::Vec3(x.min_, y.min_, z.min_);
+        return { x.min_, y.min_, z.min_ };
     }
 
     core::Vec3 max() const {
-        return core::Vec3(x.max_, y.max_, z.max_);
+        return { x.max_, y.max_, z.max_ };
     }
 
-    bool hit(const core::Ray& r, core::Interval ray_t) const {
-        //g_num_box_tests++;
+    core::Vec3 center() const {
+        return core::Vec3(
+            0.5 * (x.min_ + x.max_),
+            0.5 * (y.min_ + y.max_),
+            0.5 * (z.min_ + z.max_)
+        );
+    }
+
+    // RETURN 0, 1, or 2
+    int LongestAxis() const {
+        double dx = x.max_ - x.min_;
+        double dy = y.max_ - y.min_;
+        double dz = z.max_ - z.min_;
+
+        if (dx >= dy && dx >= dz) return 0;
+        if (dy >= dz) return 1;
+        return 2;
+    }
+
+    // Needed for SAH
+    double SurfaceArea() const {
+        double dx = x.max_ - x.min_;
+        double dy = y.max_ - y.min_;
+        double dz = z.max_ - z.min_;
+        return 2.0 * (dx*dy + dy*dz + dz*dx);
+    }
+
+    bool Hit(const core::Ray& r, core::Interval ray_t) const {
         const core::Point3& ray_orig = r.origin();
         const core::Vec3&   ray_dir  = r.direction();
 
@@ -57,9 +97,8 @@ public:
             const core::Interval& ax = axis_interval(axis);
             const double adinv = 1.0 / ray_dir[axis];
 
-            // dete.min_e interval intersection points
-            auto t0 = (ax.min_ - ray_orig[axis]) * adinv;
-            auto t1 = (ax.max_ - ray_orig[axis]) * adinv;
+            double t0 = (ax.min_ - ray_orig[axis]) * adinv;
+            double t1 = (ax.max_ - ray_orig[axis]) * adinv;
 
             if (t0 < t1) {
                 if (t0 > ray_t.min_) ray_t.min_ = t0;

@@ -1,129 +1,369 @@
 #pragma once
 
+#include <vector>
+#include <memory>
+#include <algorithm>
+#include <limits>
+
+#include "core/ray.h"
 #include "core/interval.h"
 
-#include "aabb.h"
-#include "hittable.h"
-#include "mesh.h"
-
-#include "random.h"
 #include "scene/scene.h"
 
-#include <algorithm>
+#include "hittable.h"
+#include "aabb.h"
+#include "mesh.h"
 
 namespace rt::geom {
 
-class BvhNode : public Hittable {
+/// Node layout usable on both CPU and GPU
+struct BvhNodeGPU {
+    Aabb     bbox;
+    uint32_t left;    // internal: index of left child; leaf: first primitive index
+    uint32_t right;   // internal: index of right child; leaf: primitive count
+    uint32_t isLeaf;  // 1 = leaf, 0 = internal
+};
+
+/// SAH-built, flattened BVH that is a Hittable itself.
+class Bvh : public Hittable {
   public:
-    std::vector<std::shared_ptr<Hittable>> primitives;
-    std::shared_ptr<Hittable> left;
-    std::shared_ptr<Hittable> right;
+    // Construct from a Scene
+    Bvh(scene::Scene& scene)
+        : Bvh(scene.objects_) {}
 
-    BvhNode(Mesh& mesh) : BvhNode(mesh.tris) {}
+    // Construct from a mesh (triangle list)
+    Bvh(Mesh& mesh)
+        : Bvh(mesh.tris) {}
 
-    BvhNode(scene::Scene& list) : BvhNode(list.objects_, 0, list.objects_.size()) {
-        // There's a C++ subtlety here. This constructor (without span indices) creates an
-        // implicit copy of the hittable list, which we will modify. The lifetime of the copied
-        // list only extends until this constructor exits. That's OK, because we only need to
-        // persist the resulting bounding volume hierarchy.
-    }
-
-    BvhNode(std::vector<std::shared_ptr<Hittable>>& objects, size_t start, size_t end) {
-        auto axis = core::RandomInt(0, 2);
-        auto comparator = (axis == 0) ? box_x_compare
-            : (axis == 1) ? box_y_compare
-            : box_z_compare;
-
-        size_t object_span = end - start;
-
-        if (object_span <= 4) {
-            // leaf node - just store the primitives
-            for (size_t i = start; i < end; i++) {
-                primitives.push_back(objects[i]);
-            }
-            left = nullptr;
-            right = nullptr;
-        } else {
-            // sort by comparator and split
-            std::sort(objects.begin() + start, objects.begin() + end, comparator);
-
-            auto mid = start + object_span / 2;
-            left  = std::make_shared<BvhNode>(objects, start, mid);
-            right = std::make_shared<BvhNode>(objects, mid, end);
+    // Construct from explicit list of objects
+    Bvh(std::vector<std::shared_ptr<Hittable>>& objects)
+    {
+        if (objects.empty()) {
+            root_index_ = -1;
+            return;
         }
 
-        // compute bounding box
-        if (!primitives.empty()) {
-            // leaf: merge all prim AABBs
-            Aabb temp_box;
-            bool first_box = true;
-            for (auto& obj : primitives) {
-                Aabb b = obj->BoundingBox();
-                temp_box = first_box ? b : Aabb(temp_box, b);
-                first_box = false;
-            }
-            bbox_ = temp_box;
-        } else {
-            bbox_ = Aabb(left->BoundingBox(), right->BoundingBox());
+        // Copy primitives into our own storage
+        primitives_ = objects;
+
+        const int n = static_cast<int>(primitives_.size());
+        prim_indices_.resize(n);
+        prim_bounds_.resize(n);
+        prim_centroids_.resize(n);
+
+        for (int i = 0; i < n; ++i) {
+            prim_indices_[i] = i;
+            Aabb b = primitives_[i]->BoundingBox();
+            prim_bounds_[i] = b;
+            prim_centroids_[i] = b.center();
         }
+
+        // Build SAH BVH (temporary pointer-based tree)
+        std::unique_ptr<BuildNode> root_build =
+            BuildSah(0, n);
+
+        // Flatten into GPU/CPU-friendly nodes_
+        nodes_.reserve(2 * n);
+        root_index_ = flatten(*root_build);
     }
 
+    /// Ray intersection (CPU traversal)
     bool Hit(const core::Ray& r, core::Interval ray_t, HitRecord& rec) const override {
-        if (!bbox_.hit(r, ray_t)) {
+        if (root_index_ < 0 || nodes_.empty())
             return false;
-        }
 
         bool hit_anything = false;
+        double closest = ray_t.max_;
         HitRecord temp_rec;
-        auto closest_so_far = ray_t.max_;
 
-        // check for leaf node
-        if (!primitives.empty()) {
-            for (auto& obj : primitives) {
-                if (obj->Hit(r, core::Interval(ray_t.min_, closest_so_far), temp_rec)) {
-                    hit_anything = true;
-                    closest_so_far = temp_rec.t;
-                    rec = temp_rec;
+        // Iterative traversal stack
+        int stack[64];
+        int sp = 0;
+        stack[sp++] = root_index_;
+
+        while (sp > 0) {
+            int node_idx = stack[--sp];
+            const BvhNodeGPU& node = nodes_[node_idx];
+
+            core::Interval node_range(ray_t.min_, closest);
+            if (!node.bbox.Hit(r, node_range))
+                continue;
+
+            if (node.isLeaf) {
+                // Leaf: test primitives
+                int first = static_cast<int>(node.left);
+                int count = static_cast<int>(node.right);
+
+                for (int i = 0; i < count; ++i) {
+                    int prim_idx = prim_indices_[first + i];
+                    auto& obj   = primitives_[prim_idx];
+                    if (obj->Hit(r, core::Interval(ray_t.min_, closest), temp_rec)) {
+                        hit_anything = true;
+                        closest = temp_rec.t;
+                        rec = temp_rec;
+                    }
                 }
+            } else {
+                // Internal: push children (push far first)
+                int left  = static_cast<int>(node.left);
+                int right = static_cast<int>(node.right);
+
+                // Optional: order by which child is closer to the ray origin
+                // For now, just push right then left.
+                stack[sp++] = right;
+                stack[sp++] = left;
             }
-            return hit_anything;
         }
 
-        // internal node
-        bool hit_left = left->Hit(r, ray_t, rec);
-        bool hit_right = right->Hit(r, core::Interval(ray_t.min_, hit_left ? rec.t : ray_t.max_), rec);
-
-        return hit_left || hit_right;
+        return hit_anything;
     }
 
-    Aabb BoundingBox() const override { return bbox_; }
+    Aabb BoundingBox() const override {
+        if (root_index_ < 0 || nodes_.empty())
+            return Aabb(); // empty
+        return nodes_[root_index_].bbox;
+    }
 
-    // ignore: functions only used by primitives
-    virtual int TypeId() const override { return -1; }
-    virtual int ObjectIndex() const override { return -1; }
-    virtual void set_object_index(int i) override {}
+    // ignore: primitive-only functions (match your old BvhNode)
+    int TypeId() const override { return -1; }
+    int ObjectIndex() const override { return -1; }
+    void set_object_index(int) override {}
+
+    // ==== GPU-facing accessors ====
+
+    const std::vector<BvhNodeGPU>& nodes() const { return nodes_; }
+    const std::vector<int>&        prim_indices() const { return prim_indices_; }
+    const std::vector<std::shared_ptr<Hittable>>& primitives() const { return primitives_; }
 
   private:
-    Aabb bbox_;
+    // === Internal build structures ===
 
-    static bool box_compare(
-        const std::shared_ptr<Hittable> a, const std::shared_ptr<Hittable> b, int axis_index
-    ) {
-        auto a_axis_interval = a->BoundingBox().axis_interval(axis_index);
-        auto b_axis_interval = b->BoundingBox().axis_interval(axis_index);
-        return a_axis_interval.min_ < b_axis_interval.min_;
+    struct BuildNode {
+        Aabb bounds;
+        int  firstPrim = 0;  // offset in prim_indices_
+        int  primCount = 0;  // >0 => leaf
+        std::unique_ptr<BuildNode> left;
+        std::unique_ptr<BuildNode> right;
+
+        bool is_leaf() const { return primCount > 0; }
+    };
+
+    std::vector<std::shared_ptr<Hittable>> primitives_;   // actual geometry
+    std::vector<int>    prim_indices_;    // index remapping
+    std::vector<Aabb>   prim_bounds_;
+    std::vector<core::Vec3>   prim_centroids_;
+
+    std::vector<BvhNodeGPU> nodes_;       // flattened BVH
+    int root_index_ = -1;
+
+    static constexpr int   MAX_LEAF_SIZE = 4;
+    static constexpr int   BIN_COUNT     = 16;
+    static constexpr float TRAVERSAL_COST = 1.0f;
+    static constexpr float INTERSECTION_COST = 1.0f;
+
+    // === SAH build ===
+
+    std::unique_ptr<BuildNode> BuildSah(int start, int end) {
+        auto node = std::make_unique<BuildNode>();
+
+        // Compute bounds of all primitives in [start, end)
+        Aabb bounds;
+        bool first = true;
+        for (int i = start; i < end; ++i) {
+            int idx = prim_indices_[i];
+            if (first) {
+                bounds = prim_bounds_[idx];
+                first = false;
+            } else {
+                bounds = Aabb(bounds, prim_bounds_[idx]);
+            }
+        }
+        node->bounds = bounds;
+        int count = end - start;
+
+        if (count <= MAX_LEAF_SIZE) {
+            // Make leaf
+            node->firstPrim = start;
+            node->primCount = count;
+            return node;
+        }
+
+        // Compute centroid bounds
+        Aabb centroid_bounds;
+        first = true;
+        for (int i = start; i < end; ++i) {
+            int idx = prim_indices_[i];
+            const core::Vec3& c = prim_centroids_[idx];
+            if (first) {
+                centroid_bounds = Aabb(c, c);
+                first = false;
+            } else {
+                centroid_bounds = Aabb(centroid_bounds, c);
+            }
+        }
+
+        int axis = centroid_bounds.LongestAxis();
+        double min_c = centroid_bounds.axis_interval(axis).min_;
+        double max_c = centroid_bounds.axis_interval(axis).max_;
+        double extent = max_c - min_c;
+
+        if (extent <= 0.0) {
+            // All centroids are on top of each other -> leaf
+            node->firstPrim = start;
+            node->primCount = count;
+            return node;
+        }
+
+        // Binning for SAH
+        struct Bin {
+            int  count = 0;
+            Aabb bounds;
+            bool initialized = false;
+        };
+
+        Bin bins[BIN_COUNT];
+
+        const double invExtent = 1.0 / extent;
+
+        for (int i = start; i < end; ++i) {
+            int idx = prim_indices_[i];
+            double c = prim_centroids_[idx][axis];
+            int b = static_cast<int>((c - min_c) * invExtent * BIN_COUNT);
+            if (b < 0) b = 0;
+            if (b >= BIN_COUNT) b = BIN_COUNT - 1;
+
+            Bin& bin = bins[b];
+            if (!bin.initialized) {
+                bin.bounds = prim_bounds_[idx];
+                bin.initialized = true;
+            } else {
+                bin.bounds = Aabb(bin.bounds, prim_bounds_[idx]);
+            }
+            bin.count++;
+        }
+
+        // Prefix and suffix SAH
+        Aabb left_bounds[BIN_COUNT];
+        int  left_count[BIN_COUNT];
+        Aabb right_bounds[BIN_COUNT];
+        int  right_count[BIN_COUNT];
+
+        // Left-to-right prefix
+        Aabb acc_bounds;
+        int  acc_count = 0;
+        bool acc_init  = false;
+        for (int i = 0; i < BIN_COUNT; ++i) {
+            if (bins[i].count > 0) {
+                if (!acc_init) {
+                    acc_bounds = bins[i].bounds;
+                    acc_init = true;
+                } else {
+                    acc_bounds = Aabb(acc_bounds, bins[i].bounds);
+                }
+                acc_count += bins[i].count;
+            }
+            left_bounds[i] = acc_bounds;
+            left_count[i]  = acc_count;
+        }
+
+        // Right-to-left suffix
+        acc_init  = false;
+        acc_count = 0;
+        for (int i = BIN_COUNT - 1; i >= 0; --i) {
+            if (bins[i].count > 0) {
+                if (!acc_init) {
+                    acc_bounds = bins[i].bounds;
+                    acc_init = true;
+                } else {
+                    acc_bounds = Aabb(acc_bounds, bins[i].bounds);
+                }
+                acc_count += bins[i].count;
+            }
+            right_bounds[i] = acc_bounds;
+            right_count[i]  = acc_count;
+        }
+
+        // Evaluate best split
+        double best_cost = std::numeric_limits<double>::infinity();
+        int best_split = -1;
+        double parent_area = bounds.SurfaceArea();
+
+        for (int i = 0; i < BIN_COUNT - 1; ++i) {
+            if (left_count[i] == 0 || right_count[i + 1] == 0)
+                continue;
+
+            double left_area  = left_bounds[i].SurfaceArea();
+            double right_area = right_bounds[i + 1].SurfaceArea();
+
+            double cost = TRAVERSAL_COST +
+                (left_area / parent_area)  * left_count[i]  * INTERSECTION_COST +
+                (right_area / parent_area) * right_count[i + 1] * INTERSECTION_COST;
+
+            if (cost < best_cost) {
+                best_cost  = cost;
+                best_split = i;
+            }
+        }
+
+        // If SAH says "no benefit to split", make leaf
+        double leaf_cost = count * INTERSECTION_COST;
+        if (best_split == -1 || best_cost >= leaf_cost) {
+            node->firstPrim = start;
+            node->primCount = count;
+            return node;
+        }
+
+        // Partition prim_indices_ by bin index relative to best_split
+        auto mid_it = std::partition(
+            prim_indices_.begin() + start,
+            prim_indices_.begin() + end,
+            [&](int idx) {
+                double c = prim_centroids_[idx][axis];
+                int b = static_cast<int>((c - min_c) * invExtent * BIN_COUNT);
+                if (b < 0) b = 0;
+                if (b >= BIN_COUNT) b = BIN_COUNT - 1;
+                return b <= best_split;
+            });
+
+        int mid = static_cast<int>(mid_it - prim_indices_.begin());
+
+        // Edge case: partition produced empty side
+        int leftCount  = mid - start;
+        int rightCount = end - mid;
+        if (leftCount == 0 || rightCount == 0) {
+            node->firstPrim = start;
+            node->primCount = count;
+            return node;
+        }
+
+        node->left  = BuildSah(start, mid);
+        node->right = BuildSah(mid,   end);
+        node->firstPrim = 0;
+        node->primCount = 0;
+        return node;
     }
 
-    static bool box_x_compare (const std::shared_ptr<Hittable> a, const std::shared_ptr<Hittable> b) {
-        return box_compare(a, b, 0);
-    }
+    // Flatten build nodes into linear array of BvhNodeGPU
+    int flatten(const BuildNode& bnode) {
+        int idx = static_cast<int>(nodes_.size());
+        nodes_.push_back({});
+        BvhNodeGPU& out = nodes_.back();
 
-    static bool box_y_compare (const std::shared_ptr<Hittable> a, const std::shared_ptr<Hittable> b) {
-        return box_compare(a, b, 1);
-    }
+        out.bbox = bnode.bounds;
 
-    static bool box_z_compare (const std::shared_ptr<Hittable> a, const std::shared_ptr<Hittable> b) {
-        return box_compare(a, b, 2);
+        if (bnode.is_leaf()) {
+            out.isLeaf = 1;
+            out.left   = static_cast<uint32_t>(bnode.firstPrim);
+            out.right  = static_cast<uint32_t>(bnode.primCount);
+        } else {
+            out.isLeaf = 0;
+            int left_idx  = flatten(*bnode.left);
+            int right_idx = flatten(*bnode.right);
+            out.left  = static_cast<uint32_t>(left_idx);
+            out.right = static_cast<uint32_t>(right_idx);
+        }
+
+        return idx;
     }
 };
 

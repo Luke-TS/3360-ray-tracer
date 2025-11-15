@@ -20,29 +20,6 @@
 
 using namespace rt;
 
-void flatten_bvh_debug(scene::Scene& scene) {
-    auto world_bvh = std::make_shared<geom::BvhNode>(scene);
-    std::vector<BvhNodeGPU> flat_nodes;
-    std::vector<PrimativeRef> flat_prims;
-
-    flatten_bvh(world_bvh.get(), flat_nodes, flat_prims);
-
-    // Debug print
-    std::cout << "Flattened BVH:\n";
-    for (size_t i = 0; i < flat_nodes.size(); i++) {
-        const auto& n = flat_nodes[i];
-        std::cout << "Node " << i << ": bbox_min(" << n.bbox_min.x() << ", " << n.bbox_min.y() << ", " << n.bbox_min.z() << ") "
-            << "bbox_max(" << n.bbox_max.x() << ", " << n.bbox_max.y() << ", " << n.bbox_max.z() << ") "
-            << "left_first=" << n.left_or_first << " count=" << n.count << "\n";
-    }
-
-    std::cout << "\nFlattened primitives:\n";
-    for (size_t i = 0; i < flat_prims.size(); i++) {
-        std::cout << "Prim " << i << ": type=" << flat_prims[i].type
-            << " index=" << flat_prims[i].index << "\n";
-    }
-}
-
 void cornell_box(scene::Scene& world_root) {
     scene::Scene world;
 
@@ -80,7 +57,7 @@ void cornell_box(scene::Scene& world_root) {
     world.Add(std::make_shared<geom::Sphere>(core::Point3(5.0, 1.0, 2.5), 1.0, glass));
 
     // Add BVH
-    world_root.Add(std::make_shared<geom::BvhNode>(world.objects_, 0, world.objects_.size()));
+    world_root.Add(std::make_shared<geom::Bvh>(world));
 }
 
 
@@ -114,8 +91,8 @@ void Spheres(scene::Scene& world_root) {
     world.Add(std::make_shared<geom::Sphere>(core::Point3(0,-1000,0), 1000, make_shared<material::Lambertian>(checker)));
 
     
-    for (int a = -11; a < 11; a++) {
-        for (int b = -11; b < 11; b++) {
+    for (int a = -110; a < 110; a++) {
+        for (int b = -110; b < 110; b++) {
             auto choose_mat = core::RandomDouble();
             core::Point3 center(a + 0.9*core::RandomDouble(), 0.2, b + 0.9*core::RandomDouble());
 
@@ -164,16 +141,18 @@ void Spheres(scene::Scene& world_root) {
 
     // world.Add(bunny_bvh);
 
-    world_root.Add(std::make_shared<geom::BvhNode>(world.objects_, 0, world.objects_.size()));
+    world_root.Add(std::make_shared<geom::Bvh>(world));
 }
 
-void checkered_spheres(scene::Scene& world) {
+void checkered_spheres(scene::Scene& world_root) {
+    scene::Scene world;
+
     auto checker = std::make_shared<material::CheckerTexture>(0.32, core::Color(.2, .3, .1), core::Color(.9, .9, .9));
 
     world.Add(std::make_shared<geom::Sphere>(core::Point3(0,-10, 0), 10, make_shared<material::Lambertian>(checker)));
     world.Add(std::make_shared<geom::Sphere>(core::Point3(0, 10, 0), 10, make_shared<material::Lambertian>(checker)));
 
-    world.Add(std::make_shared<geom::BvhNode>(world.objects_, 0, world.objects_.size()));
+    world_root.Add(std::make_shared<geom::Bvh>(world));
 }
 
 int main(int argc, char** argv) {
@@ -196,7 +175,7 @@ int main(int argc, char** argv) {
     cam.Initialize();
 
     scene::Scene world;
-    switch(1) {
+    switch(4) {
         case 1: Spheres(world); break;
         case 2: checkered_spheres(world); break;
         case 3: earth(world); break;
